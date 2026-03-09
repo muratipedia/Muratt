@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kelime Ezber">
+<meta name="theme-color" content="#0d0f14">
+<meta name="description" content="2491 İngilizce kelime ezberleme uygulaması">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+<title>Kelime Ezber</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@300;400;600;700;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0f14;
+  --surface: #161923;
+  --card: #1e2433;
+  --card2: #232b3e;
+  --accent: #5b8dee;
+  --accent2: #f0a500;
+  --text: #e8ecf4;
+  --muted: #7a8299;
+  --success: #42c97a;
+  --danger: #e05c6f;
+  --radius: 18px;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: env(safe-area-inset-top, 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 40px);
+  overflow-x: hidden;
+}
+
+/* ─── WELCOME ─── */
+#welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  max-width: 460px;
+  width: 100%;
+  padding-top: 40px;
+  animation: fadeUp .5s ease;
+}
+.logo { font-family:'Space Mono',monospace; font-size:12px; letter-spacing:4px; color:var(--accent); text-transform:uppercase; }
+.big-title { font-size:clamp(30px,8vw,48px); font-weight:900; line-height:1.05; text-align:center; }
+.big-title span { color:var(--accent2); }
+.subtitle { color:var(--muted); font-size:14px; text-align:center; line-height:1.6; }
+.word-count-badge { background:var(--card); border:1px solid rgba(91,141,238,.3); border-radius:100px; padding:7px 18px; font-size:12px; color:var(--accent); font-family:'Space Mono',monospace; }
+
+/* Settings panel on welcome */
+.settings-panel {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: var(--radius);
+  padding: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.settings-panel h3 {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 2px;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.setting-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.setting-label .flag { font-size: 16px; }
+
+/* Chip buttons (voice / speed) */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.chip {
+  padding: 7px 14px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(255,255,255,.1);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  transition: all .18s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.chip:active { transform: scale(.95); }
+.chip.active {
+  border-color: var(--accent);
+  background: rgba(91,141,238,.18);
+  color: var(--accent);
+}
+.chip.active-tr {
+  border-color: var(--accent2);
+  background: rgba(240,165,0,.15);
+  color: var(--accent2);
+}
+
+/* Voice chips special */
+.chip-voice { font-family: 'Nunito', sans-serif; font-size: 13px; }
+
+/* Start from input */
+.start-from-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.start-from-wrap label { font-size: 13px; font-weight:700; color:var(--text); white-space:nowrap; }
+.num-input {
+  background: var(--surface);
+  border: 1.5px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  padding: 9px 14px;
+  width: 100px;
+  outline: none;
+  transition: border-color .2s;
+}
+.num-input:focus { border-color: var(--accent); }
+.num-input-hint { font-size: 11px; color: var(--muted); }
+
+/* Buttons */
+.btn {
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 14px;
+  border: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, opacity .15s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(.97); opacity: .9; }
+.btn-primary { background:var(--accent); color:#fff; box-shadow:0 8px 28px rgba(91,141,238,.35); }
+.btn-secondary { background:var(--card); color:var(--text); border:1px solid rgba(255,255,255,.08); }
+.btn-danger { background:rgba(224,92,111,.15); color:var(--danger); border:1px solid rgba(224,92,111,.3); }
+.btn-success { background:var(--success); color:#fff; box-shadow:0 8px 28px rgba(66,201,122,.3); }
+.btn-group { display:flex; flex-direction:column; gap:10px; width:100%; }
+
+/* ─── RESUME MODAL ─── */
+#resume-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.8);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#resume-modal.show { display:flex; }
+.modal-box {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,.1);
+  padding: 28px 22px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  animation: scaleIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-box h2 { font-size:20px; font-weight:800; margin-bottom:10px; }
+.modal-box p { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:22px; }
+.modal-box p strong { color:var(--accent2); font-size:17px; }
+.modal-btn-row { display:flex; gap:10px; }
+.modal-btn-row .btn { padding:13px; font-size:14px; }
+
+/* ─── PLAYER ─── */
+#player {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 500px;
+  width: 100%;
+  padding-top: 12px;
+  animation: fadeUp .4s ease;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.progress-wrap { flex:1; margin-right:14px; }
+.progress-label { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:5px; font-family:'Space Mono',monospace; }
+.progress-bar { height:5px; background:var(--card); border-radius:10px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:10px; transition:width .5s ease; }
+
+.exit-btn {
+  background: rgba(224,92,111,.12);
+  color: var(--danger);
+  border: 1.5px solid rgba(224,92,111,.35);
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Nunito', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* WORD CARD */
+.word-card {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 24px;
+  width: 100%;
+  padding: 30px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.word-card::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(91,141,238,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.word-index { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; }
+.word-en { font-size:clamp(26px,6.5vw,40px); font-weight:900; color:var(--text); line-height:1.2; }
+.divider-line { width:44px; height:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:10px; }
+.word-tr { font-size:clamp(13px,3.5vw,16px); font-weight:600; color:var(--muted); line-height:1.5; max-width:360px; }
+.word-tr.visible { color:var(--success); }
+
+/* Phase dots */
+.phase-indicator { display:flex; gap:9px; align-items:center; }
+.phase-dot { width:8px; height:8px; border-radius:50%; background:var(--card); border:1.5px solid var(--muted); transition:all .3s; }
+.phase-dot.active { background:var(--accent); border-color:var(--accent); box-shadow:0 0 8px rgba(91,141,238,.6); }
+.phase-dot.done { background:var(--success); border-color:var(--success); }
+.phase-label { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
+
+/* Status */
+.status-bar {
+  display:flex; align-items:center; gap:9px; font-size:12px;
+  color:var(--muted); background:var(--surface);
+  padding:9px 16px; border-radius:100px; border:1px solid rgba(255,255,255,.05);
+}
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--muted); }
+.status-dot.playing { background:var(--success); animation:pulse 1s infinite; }
+.status-dot.paused { background:var(--accent2); }
+
+/* Controls */
+.controls { display:flex; gap:10px; width:100%; }
+.controls .btn { flex:1; padding:14px; font-size:14px; }
+
+/* ─── INLINE PLAYER SETTINGS ─── */
+.player-settings {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  padding: 16px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.player-settings-title {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+}
+.ps-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.ps-row-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-top: 8px;
+  min-width: 58px;
+  font-family: 'Space Mono', monospace;
+}
+
+/* ─── WORD LIST ─── */
+.word-list-section {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  padding: 14px 16px;
+  width: 100%;
+}
+.word-list-title {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 10px;
+}
+.word-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.word-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.word-list-item:hover { background: rgba(255,255,255,.04); }
+.word-list-item.active-item {
+  background: rgba(91,141,238,.12);
+  border: 1px solid rgba(91,141,238,.25);
+}
+.wli-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  min-width: 28px;
+  text-align: right;
+}
+.wli-en {
+  font-weight: 700;
+  font-size: 14px;
+  flex: 1;
+  color: var(--text);
+}
+.wli-tr {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.word-list-item.active-item .wli-en { color: var(--accent); }
+.word-list-item.active-item .wli-num { color: var(--accent); }
+
+/* ─── FINISH ─── */
+#finish {
+  display:none; flex-direction:column; align-items:center; gap:22px;
+  max-width:420px; width:100%; text-align:center;
+  padding-top:60px; animation:fadeUp .5s ease;
+}
+.finish-emoji { font-size:64px; line-height:1; }
+.finish-title { font-size:28px; font-weight:900; }
+.finish-sub { color:var(--muted); font-size:15px; line-height:1.6; }
+
+/* Animations */
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes scaleIn { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+@keyframes wordChange { 0%{opacity:0;transform:translateY(8px)} 100%{opacity:1;transform:translateY(0)} }
+.word-animate { animation:wordChange .3s ease; }
+
+.speech-warning {
+  background:rgba(240,165,0,.1); border:1px solid rgba(240,165,0,.3);
+  border-radius:12px; padding:11px 15px; font-size:12px;
+  color:var(--accent2); text-align:center; line-height:1.5;
+}
+
+/* Divider */
+.divider-h { width:100%; height:1px; background:rgba(255,255,255,.06); }
+</style>
+</head>
+<body>
+
+<!-- ══════════ WELCOME ══════════ -->
+<div id="welcome">
+  <div class="logo">🎧 Kelime Ezber</div>
+  <h1 class="big-title">İngilizce<br><span>Kelime</span><br>Antrenmanı</h1>
+  <p class="subtitle">Kelimeler seslendirilir, ardından<br>Türkçe anlamı söylenir.</p>
+  <div class="word-count-badge" id="word-count-badge">2.491 Kelime</div>
+
+  <div id="speech-check" class="speech-warning" style="display:none">
+    ⚠️ Tarayıcınız ses sentezini desteklemiyor. Chrome veya Safari kullanın.
+  </div>
+  <div class="speech-warning" style="background:rgba(91,141,238,.08);border-color:rgba(91,141,238,.25);color:var(--accent);font-size:12px;">
+    🎧 Ekran kapansa bile ses devam eder. Kilit ekranından kontrol edebilirsiniz.
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div class="settings-panel">
+    <h3>⚙️ Ayarlar</h3>
+
+    <!-- EN Voice -->
+    <div class="setting-row">
+      <div class="setting-label"><span class="flag">🇬🇧</span> İngilizce Ses</div>
+      <div class="chip-row" id="en-voice-chips"></div>
+    </div>
+
+    <!-- EN Speed -->
+    <div class="setting-row">
+      <div class="setting-label"><span class="flag">🇬🇧</span> İngilizce Hız</div>
+      <div class="chip-row" id="en-speed-chips">
+        <button class="chip" onclick="setEnSpeed(0.75,this)">0.75×</button>
+        <button class="chip active" onclick="setEnSpeed(1,this)">1.0×</button>
+        <button class="chip" onclick="setEnSpeed(1.25,this)">1.25×</button>
+        <button class="chip" onclick="setEnSpeed(1.5,this)">1.5×</button>
+        <button class="chip" onclick="setEnSpeed(1.75,this)">1.75×</button>
+        <button class="chip" onclick="setEnSpeed(2,this)">2.0×</button>
+      </div>
+    </div>
+
+    <div class="divider-h"></div>
+
+    <!-- TR Voice -->
+    <div class="setting-row">
+      <div class="setting-label"><span class="flag">🇹🇷</span> Türkçe Ses</div>
+      <div class="chip-row" id="tr-voice-chips"></div>
+    </div>
+
+    <!-- TR Speed -->
+    <div class="setting-row">
+      <div class="setting-label"><span class="flag">🇹🇷</span> Türkçe Hız</div>
+      <div class="chip-row" id="tr-speed-chips">
+        <button class="chip" onclick="setTrSpeed(0.75,this)">0.75×</button>
+        <button class="chip active" onclick="setTrSpeed(1,this)">1.0×</button>
+        <button class="chip" onclick="setTrSpeed(1.25,this)">1.25×</button>
+        <button class="chip" onclick="setTrSpeed(1.5,this)">1.5×</button>
+        <button class="chip" onclick="setTrSpeed(1.75,this)">1.75×</button>
+        <button class="chip" onclick="setTrSpeed(2,this)">2.0×</button>
+      </div>
+    </div>
+
+    <div class="divider-h"></div>
+
+    <!-- Start from -->
+    <div class="setting-row">
+      <div class="setting-label">📍 Başlanacak Kelime</div>
+      <div class="start-from-wrap">
+        <label>No:</label>
+        <input type="number" id="start-from-input" class="num-input" min="1" max="2491" value="1" placeholder="1">
+        <span class="num-input-hint">/ 2491</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-group" id="welcome-btns">
+    <button class="btn btn-primary" onclick="startFromSettings()">▶ Başlat</button>
+    <button class="btn btn-secondary" id="continue-btn" onclick="checkResume()" style="display:none">⏎ Kaldığım Yerden Devam</button>
+  </div>
+</div>
+
+<!-- ══════════ RESUME MODAL ══════════ -->
+<div id="resume-modal">
+  <div class="modal-box">
+    <h2>📍 Kaldığınız Yer</h2>
+    <p id="resume-text">Devam etmek ister misiniz?</p>
+    <div class="modal-btn-row">
+      <button class="btn btn-danger" onclick="startFresh()">Hayır, Başa Sar</button>
+      <button class="btn btn-success" onclick="resumeFrom()">Evet, Devam Et</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PLAYER ══════════ -->
+<div id="player">
+
+  <!-- Progress -->
+  <div class="top-bar">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="prog-current">1</span>
+        <span id="prog-total">/ 2491</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <button class="exit-btn" onclick="stopAndGoHome()">✕ Çıkış</button>
+  </div>
+
+  <!-- Word Card -->
+  <div class="word-card">
+    <div class="word-index" id="word-index">1 / 2491</div>
+    <div class="word-en word-animate" id="word-en">—</div>
+    <div class="divider-line"></div>
+    <div class="word-tr" id="word-tr">—</div>
+  </div>
+
+  <!-- Phase dots + status -->
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;">
+    <div class="phase-indicator">
+      <div class="phase-dot" id="dot-en"></div>
+      <div class="phase-label">EN</div>
+      <div class="phase-dot" id="dot-wait"></div>
+      <div class="phase-label">⏱</div>
+      <div class="phase-dot" id="dot-tr"></div>
+      <div class="phase-label">TR</div>
+    </div>
+    <div class="status-bar">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-label">Hazır</span>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-secondary" onclick="prevWord()">⟨ Önceki</button>
+    <button class="btn btn-primary" onclick="togglePause()" id="btn-pause">▶ Başlat</button>
+    <button class="btn btn-secondary" onclick="nextWord()">Sonraki ⟩</button>
+  </div>
+
+  <!-- Player inline settings -->
+  <div class="player-settings">
+    <div class="player-settings-title">⚙️ Hız &amp; Ses</div>
+
+    <div class="ps-row">
+      <div class="ps-row-label">EN HIZ</div>
+      <div class="chip-row" id="p-en-speed-chips">
+        <button class="chip" onclick="setEnSpeedP(0.75,this)">0.75×</button>
+        <button class="chip active" onclick="setEnSpeedP(1,this)">1.0×</button>
+        <button class="chip" onclick="setEnSpeedP(1.25,this)">1.25×</button>
+        <button class="chip" onclick="setEnSpeedP(1.5,this)">1.5×</button>
+        <button class="chip" onclick="setEnSpeedP(1.75,this)">1.75×</button>
+        <button class="chip" onclick="setEnSpeedP(2,this)">2.0×</button>
+      </div>
+    </div>
+
+    <div class="ps-row">
+      <div class="ps-row-label">TR HIZ</div>
+      <div class="chip-row" id="p-tr-speed-chips">
+        <button class="chip" onclick="setTrSpeedP(0.75,this)">0.75×</button>
+        <button class="chip active" onclick="setTrSpeedP(1,this)">1.0×</button>
+        <button class="chip" onclick="setTrSpeedP(1.25,this)">1.25×</button>
+        <button class="chip" onclick="setTrSpeedP(1.5,this)">1.5×</button>
+        <button class="chip" onclick="setTrSpeedP(1.75,this)">1.75×</button>
+        <button class="chip" onclick="setTrSpeedP(2,this)">2.0×</button>
+      </div>
+    </div>
+
+    <div class="ps-row">
+      <div class="ps-row-label">EN SES</div>
+      <div class="chip-row" id="p-en-voice-chips"></div>
+    </div>
+
+    <div class="ps-row">
+      <div class="ps-row-label">TR SES</div>
+      <div class="chip-row" id="p-tr-voice-chips"></div>
+    </div>
+  </div>
+
+  <!-- Next 10 words list -->
+  <div class="word-list-section">
+    <div class="word-list-title">📋 Sıradaki Kelimeler</div>
+    <div class="word-list" id="word-list"></div>
+  </div>
+
+</div>
+
+<!-- ══════════ FINISH ══════════ -->
+<div id="finish">
+  <div class="finish-emoji">🏆</div>
+  <h2 class="finish-title">Tebrikler!</h2>
+  <p class="finish-sub">Tüm 2.491 kelimeyi tamamladınız!<br>Harika bir başarı!</p>
+  <button class="btn btn-primary" style="max-width:300px" onclick="startFresh()">🔄 Baştan Tekrar</button>
+</div>
+
+<script>
+const ALL_WORDS = [{"en":"Overlook","tr":"Görmezden gelmek"},{"en":"Boost","tr":"Arttırmak , güçlendirmek"},{"en":"Undergo","tr":"Maruz kalmak süreçten geçmek , geçirmek (hastalık) olmak , tedavi görmek"},{"en":"Utilize","tr":"Yararlanmak"},{"en":"Adequate","tr":"Yeterli"},{"en":"Exeptional","tr":"Sıradışı"},{"en":"Adversely","tr":"Zararına , olumsuz , kötü ve ters bir şekilde"},{"en":"Dramatically","tr":"Önemli oranda önemli ölçüde"},{"en":"Inevatably","tr":"Kaçınılmaz bir şekilde"},{"en":"Notably","tr":"Açıkça , özenli c  dikkate değer , göze çarpan şekilde"},{"en":"Severely","tr":"Ciddi şekilde"},{"en":"Allegedly","tr":"İddiaya göre , söylenene göre"},{"en":"Call for","tr":"Gerektirmek , çağrıda bulunmak"},{"en":"Send out","tr":"Yaymak salmak , emit"},{"en":"Bring about","tr":"Neden olmak"},{"en":"Turn down","tr":"Reddetmek"},{"en":"Take over","tr":"Üstlenmek devralmak"},{"en":"Result in","tr":"sonuçlanmak"},{"en":"Rely on","tr":"güvenmek , bel bağlamak"},{"en":"Cope with","tr":"Başa çıkmak mücadele etmek , üstesinden gelmek"},{"en":"Realm of","tr":"alanı , dünyası , krallığı"},{"en":"Shed light on","tr":"ışık tutmak , aydınlatmak"},{"en":"Empirical","tr":"deneysel"},{"en":"Rationate","tr":"makul , gerekçe , neden"},{"en":"Attribute to/ascribe to","tr":"atıfta bulunmak , atfetmek"},{"en":"Innovation/breakthrough","tr":"yenilik keşif"},{"en":"Groundbreaking","tr":"çığır açan"},{"en":"Occupy","tr":"işgal etmek , meşgul etmek"},{"en":"Offend","tr":"rencide etmek , suç işlemek"},{"en":"Operate","tr":"çalıştırmak işletmek"},{"en":"Outweigh","tr":"ağır basmak"},{"en":"Overcome","tr":"üstesinden gelmek"},{"en":"Overtake","tr":"geçmek sollamak yetişmek geride bırakmak"},{"en":"Overlook","tr":"Görmezden gelmek"},{"en":"Overestimate","tr":"gözünde büyütmek"},{"en":"Penetrate","tr":"nüfuz etmek"},{"en":"Perpetuate","tr":"devam etmek , devam ettirmek , sürdürmek"},{"en":"Enhance","tr":"geliştirmek"},{"en":"Deprive of","tr":"mahrum bırakmak , yoksun bırakmak"},{"en":"Extinction","tr":"yok oluş , nesli tükenme"},{"en":"Invasion","tr":"istila"},{"en":"Inhibit","tr":"engellemek cesaretini kırmak"},{"en":"Abrupt","tr":"ani"},{"en":"Excessive","tr":"haddinden fazla aşırı"},{"en":"Accusation","tr":"suçlama"},{"en":"Accumulate","tr":"biriktirmek"},{"en":"Accelerate","tr":"hızlandırmak"},{"en":"Put on","tr":"giymek , kilo almak"},{"en":"Put off","tr":"çıkarmak (giysi) , ertelemek"},{"en":"Take apart","tr":"parçalara bölmek"},{"en":"Deal with","tr":"üstesinden gelmek"},{"en":"Break out","tr":"patlak vermek"},{"en":"Pecular to","tr":"e özgü"},{"en":"Evoke","tr":"somutlaştırmak gözünde canlandırmak"},{"en":"Predominantly","tr":"çoğunlukla"},{"en":"Encompass","tr":"kapsamak içermek"},{"en":"Lead to","tr":"yol açmak neden olmak"},{"en":"Appliance","tr":"cihaz alet"},{"en":"Overwhelm","tr":"bunaltmak boğmak mahcup etmek , etkilemek , kaplamak , şaşkına çevirmek , alt etmek"},{"en":"Deliberate","tr":"kasıtlı biliçli"},{"en":"Maintain","tr":"sürdürmek"},{"en":"Mandate","tr":"şart koşmak emretmek"},{"en":"Manifest","tr":"açıkça göstermek"},{"en":"Mitigate","tr":"rahatlatmak azaltmak hafifletmek"},{"en":"Narrow","tr":"daraltmak"},{"en":"Neglect","tr":"ihmal etmek"},{"en":"Nourish","tr":"büyütmek bakmak yetiştirmek"},{"en":"Object to","tr":"e karşı olmak , itiraz etmek"},{"en":"Obtain","tr":"elde etmek"},{"en":"Dormand","tr":"faal olmayan , hareketsiz"},{"en":"Biased","tr":"ön yargılı"},{"en":"Assuage","tr":"yatıştırmak , hafifletmek"},{"en":"Proximity","tr":"yakınlık"},{"en":"Familiary","tr":"aşinalık"},{"en":"Perception","tr":"algı"},{"en":"Decisive","tr":"kararlı"},{"en":"Futile","tr":"boşuna , nafile"},{"en":".","tr":"."},{"en":"Deterioration","tr":"kötüleşme ,"},{"en":"Ward off","tr":"önlemek , defetmek"},{"en":"Intensity","tr":"yoğunluk , şiddet"},{"en":"Clarity","tr":"açıklık"},{"en":"Rarity","tr":"nadirlik"},{"en":"Propensity","tr":"eğilim"},{"en":"Viability","tr":"yaşanabilirlik , uygulanabilirlik"},{"en":"Decomposition","tr":"ayrışma , çürüme"},{"en":"Susceptibility","tr":"hassaslık , hassasiyet"},{"en":"Intermittent","tr":"aralıklı kesikli"},{"en":"Amplification","tr":"güçlendime büyütme"},{"en":"Discrepancy","tr":"çelişki , uyuşmazlık"},{"en":"Precipitation","tr":"yağış çökelme"},{"en":"Configuration","tr":"Yapı , yapılandırma , şekillendirme , kurulum"},{"en":"Alter","tr":"Değiştirmek"},{"en":"Deplete","tr":"Tüketmek"},{"en":"Detect","tr":"Tespit etmek , saptamak"},{"en":"Defect","tr":"Arıza , kusur"},{"en":"Harness","tr":"Faydalanmak ,  kullanmak , yararlanmak"},{"en":"Inhibit","tr":"Engellemek"},{"en":"Approve","tr":"Onaylamak"},{"en":"Arise","tr":"Ortaya çıkmak meydana çıkmak"},{"en":"Articulate","tr":"Açıkça söylemek"},{"en":"Attach","tr":"Bağlamak , eklemek , iliştirmek"},{"en":"Attain","tr":"Elde etmek"},{"en":"Attribute","tr":"Atfetmek , atıfta bulunmak"},{"en":"Avert","tr":"Engellemek , defetmek"},{"en":"Blur","tr":"Bulandırmak , lekelemek"},{"en":"Capture","tr":"Ele vermek"},{"en":"Commit","tr":"Adamak"},{"en":"Commit","tr":"Suç işlemek"},{"en":"Convert/turn/change/transform to","tr":"e dönüştürmek , değiştirmek"},{"en":"Immerse  into","tr":"Kendini kaptırmak , müptelası olmak"},{"en":"Venture into","tr":"Bir işe girmek , girişmek , riske girmek, tehlikeye atılmak"},{"en":"Break into","tr":"Zorla girmek"},{"en":"Delve/probe into","tr":"Derinlemesine araştırmak , incelemek"},{"en":"Invest in","tr":"Yatırım yapmak"},{"en":"Classify/seperate/break down/divide/ group into","tr":"Bölmek , sınıflandırmak , e ayırmak"},{"en":"Group into","tr":"Bölmek , sınıflandırmak , e ayırmak"},{"en":"Release smt. into","tr":"Birşeyi salmak (havaya vs)"},{"en":".","tr":"."},{"en":"Extraction","tr":"Çıkarım , çıkarma"},{"en":"Notoriously","tr":"Kötü şöhrete sahip bir şekilde ,  kötü ünlü bir şekilde"},{"en":"Severely","tr":"Ağır bir şekilde , şiddetle"},{"en":"Recklessly","tr":"İsteksiz , dikkatsiz , pervasız , utanmadan"},{"en":"reluctantly","tr":"İsteksiz , istemeden , gönülsüzce"},{"en":"Properly/aptly/nicely/appropriately","tr":"Uygun bir şekilde"},{"en":"Take over","tr":"Devralmak , üstlenmek"},{"en":"Stem from","tr":"Den kaynaklanmak , den meydana gelmek"},{"en":"Make up","tr":"Oluşturmak"},{"en":"Bring down","tr":"Yıkmak , devirmek , alt etmek , indirmek , azaltmak"},{"en":"Figure out","tr":"Anlamak çözmek"},{"en":"Run out","tr":"Tükenmek tüketmek bitirmek dışarı atmak"},{"en":"Go off","tr":"Bozulmak , çürümek"},{"en":"Enact","tr":"Yasalaştırmak , sahnelemek , canlandırmak"},{"en":"Conversely","tr":"Bunun aksine"},{"en":"Rule out","tr":"Hariç bırakmak ortadan kaldırmak"},{"en":"Diminishing","tr":"Azalan"},{"en":"Feasible","tr":"Uygulanabilir yaşanabilir"},{"en":"Insight into","tr":"İç yüzünü anlamak"},{"en":"Make up for","tr":"Telafi etmek"},{"en":"Alleviate","tr":"Azaltmak hafifletmek rahatlatmak mitigate"},{"en":"Incentive","tr":"Teşvik"},{"en":"Evolve","tr":"Evrilmek"},{"en":"Overlook 3x","tr":"Üstesinden gelmek"},{"en":"Prominent","tr":"Önde gelen"},{"en":"Barren","tr":"Verimsiz çorak kısır"},{"en":"Fraudulent","tr":"Hileli şaibeli"},{"en":"Misleading","tr":"Aldatıcı"},{"en":"Counterfeit","tr":"Sahtesini yapmak , sahte , taklit etmek"},{"en":"Counterpart","tr":"Meslektaş mevkidaş muadil"},{"en":"Malicious","tr":"Kötü amaçlı"},{"en":"Terminal","tr":"ölümcül tedavisi olmayan"},{"en":"Debilitating","tr":"Elden ayaktan düşen , zayıflatıcı , yıpratıcı"},{"en":"Gradually","tr":"Git gide , kademeli olarak"},{"en":"Exclusively","tr":"Yanlızca sadece"},{"en":"Eventually","tr":"Eninde sonunda , en sonunda , er geç , nihayet"},{"en":"Devastatingly","tr":"Yıkıcı bir şekilde"},{"en":"Delusion","tr":"Aldanma , Sanrı , Hayali , yanılgı"},{"en":"Proliferation","tr":"Çoğalma , artma , üreme"},{"en":"Suppression","tr":"Baskı yapma eziyet çektirme yok etme"},{"en":"Estimate","tr":"Tahmin etmek"},{"en":"Foster","tr":"Bakmak büyütmek"},{"en":"Catch up with","tr":"Yakalamak izinden gitmek takip etmek (pursue)"},{"en":"Break in on","tr":"Araya girmek (sohbet) , ihlal etmek , atılmak"},{"en":"Fall back on","tr":"Başvurmak , son çare olarak başvurmak , sırtını dayamak"},{"en":"Get rid of","tr":"Kurtulmak"},{"en":"Look down on","tr":"Küçümsemek"},{"en":"Make away with","tr":"Alıp kaçmak , ortadan kaldırmak , yok etmek , kurtulmak öldürmek"},{"en":"Come up with","tr":"Fikir vs üretmek ortaya çıkmak , bulmak (fikir)"},{"en":"Take away from","tr":"Kötüleştirmek - deteriorate - worsen - exacerbate - aggravate - bastardize"},{"en":"Put up with","tr":"Katlanmak - tahammül etmek"},{"en":"Cut down on","tr":"Kesmek azaltmak azalmak"},{"en":"Disruption","tr":"bozulma - azalma - kesintiye uğrama"},{"en":"Commitment","tr":"Adama - işleme (suç vs)"},{"en":"vulnerability-susceptibility","tr":"Hassaslık - hassasiyet"},{"en":"Exception","tr":"Hariç bırakma - haricilik"},{"en":"Hindrance","tr":"Engel"},{"en":"Get through","tr":"Geçmek , take over - başarmak - bitirmek - ulaşmak - geçirmek - üstesinden gelmek"},{"en":"Draw on","tr":"Kullanmak , faydalanmak , yararlanmak"},{"en":"Hand in","tr":"Teslim etmek - deliever - hand over - submit to"},{"en":"Halt","tr":"Durdurmak durmak"},{"en":"Embody","tr":"Canlandırmak somutlaştırmak"},{"en":"Aggravate/worsen/ deteriorate","tr":"Kötüleştirmek - sinirlendirmek - ağırlaştırmak"},{"en":"Confront","tr":"Yüzleşmek karşılaşmak"},{"en":"Foster x2","tr":"Teşvik etmek , büyütmek , bakmak , evlat edinmek"},{"en":"Exploit","tr":"Kullanmak (kötüye) , sömürmek"},{"en":"Supposedly","tr":"İddiaya göre , söylenene göre - allegedly"},{"en":"Range","tr":"Sıra dizi aralık"},{"en":"Unevenly","tr":"Eşit olmayan bir şekilde"},{"en":"Meanwhile","tr":"O esnada"},{"en":"After all","tr":"Herşeye rağmen"},{"en":"The more….the more…","tr":"Ne kadar ekmek o kadar köfte"},{"en":"By means of","tr":"Aracılığıyla"},{"en":"Vaguely","tr":"Belirsiz bir şekilde"},{"en":"Deceptive-misleading","tr":"Aldatıcı"},{"en":"Carry out","tr":"Uygulamak"},{"en":"Work out","tr":"Çözmek , işi halletmek , İŞE YARAMAK antreman yapmak hesaplamak"},{"en":"Cave","tr":"Mağara"},{"en":"Suffocate","tr":"Boğulmak"},{"en":".","tr":"."},{"en":"Go through x2","tr":"Süreçten geçmek maruz kalmak geçirmek"},{"en":"Lie in","tr":"E dayanmak , çoçuk doğurmak"},{"en":"Take on","tr":"Üstlenmek devralmak"},{"en":"Relieve of","tr":"Kurtulmak  kurtarmak rahatlamak elinden almak"},{"en":"Divide by","tr":"Bölmek"},{"en":"Aim at","tr":"Hedeflemek"},{"en":"Admit","tr":"İtiraf etmek"},{"en":"Take in","tr":"İçeri almak anlamak kapsamak"},{"en":"Account for","tr":"Nedenini açıklamak hesap vermek açıklamak"},{"en":"Exonerate","tr":"Haklı çıkarmak , aklamak, temize çıkarmak , berat etmek"},{"en":"Expound","tr":"Açıklamak"},{"en":"Bolster","tr":"Savunmak desteklemek"},{"en":"Tangible","tr":"Somut elle tutulur"},{"en":"Tedious","tr":"Sıkıcı yorucu can sıkıcı"},{"en":"Tentative/provisional","tr":"Temporal geçici"},{"en":"Appeal to","tr":"İlgi çekmek"},{"en":"Desperately","tr":"Umutsuzca"},{"en":"Scarcely","tr":"Zar zor , güç bela ,"},{"en":"Make out","tr":"Anlamak çözmek idare etmek yazmak \tçözmek iddia etmek"},{"en":"Subsequent","tr":"Sonraki"},{"en":"Conceive - contrive- design - work out","tr":"Tasarlamak düşünmek"},{"en":"Exclude","tr":"Hariç bırakmak"},{"en":"Tremendous","tr":"Muazzam çok büyük"},{"en":"Trivial","tr":"Gereksiz abartı"},{"en":"Thoroughgoing","tr":"Tam kapsamlı , pürüzsüz , kusursuz"},{"en":"Turbulent","tr":"Çalkantılı , karışık"},{"en":"Thriving","tr":"Gelişen büyüyen"},{"en":"Resort to","tr":"Son çare olarak başvurmak - e gitmek"},{"en":"Submit to","tr":"Boyun eğmek , kurallara uymak , itaat etmek"},{"en":"Revert to","tr":"E geri dönüş yapmak eski haline geri dönmek eskiye dönmek"},{"en":"Yield to","tr":"Boyun eğmek kabullenmek"},{"en":"Devote to","tr":"Adamak"},{"en":"Adhere to","tr":"E bağlı olmak e bağlanmak"},{"en":"Prone to","tr":"Eğilimli olmak"},{"en":"Apt to","tr":"Eğilimli olmak"},{"en":".","tr":"."},{"en":"Cling on to","tr":"Sıkı sıkıya bağlanmak , sıkı sıkıya tutunmak"},{"en":"Confer","tr":"Sunmak vermek sağlamak"},{"en":"Aver","tr":"İddia etmek delil göstermek"},{"en":"Perpetrate","tr":"(Hata vs ) yapmak (suç vs) işlemek , zararlı bir şey uygulamak"},{"en":"Dispansable","tr":"Gereksiz , trivial , redundant"},{"en":"Be credited with","tr":"İle bilinmek , tanınmak"},{"en":"Cut down on","tr":"Azalmak azaltmak"},{"en":"Seek out","tr":"Araştırmak incelemek"},{"en":"Bring in","tr":"Birisinden birşey yapmasını rica etme , getirmek (yasa vb) kazanmak kazandırmak vermek"},{"en":"Interfere with","tr":"Araya girmek , müdahale etmek"},{"en":"Invigorate","tr":"Canlandırmak , dinçleştirmek , renew , revive , rouse , brighten"},{"en":"Undermine","tr":"Baltalamak zarar vermek küçümsemek"},{"en":"Circumvent","tr":"Kaçmak sakınmak"},{"en":"Call off","tr":"İptal etmek"},{"en":"Amount to","tr":"Anlamına gelmek"},{"en":"Turn into","tr":"E dönüşmek , e dönmek"},{"en":"Take off","tr":"Havalanmak hızla yükselmek"},{"en":"Fall behind","tr":"Gerisinde kalmak"},{"en":"Rush into","tr":"Düşünmeden bir işe girişmek"},{"en":"Capitalize on","tr":"Kendi çıkarı için faydalanmak"},{"en":"Run into","tr":"Karşılaşmak rastlamak"},{"en":"Run out x2","tr":"Tükenmek bitirmek tüketmek sona ermek"},{"en":"Rule out x2","tr":"Hariç bırakmak"},{"en":"Hand over","tr":"Teslim etmek nesilden nesile aktarmak"},{"en":"Give off","tr":"Yaymak salmak emit send out"},{"en":"Keep on","tr":"Devam etmek sürdürmek"},{"en":"Pass for","tr":"….. olarak kabul etmek , sanmak"},{"en":"Get along (with)","tr":"İyi geçinmek , anlaşmak"},{"en":"Infringe","tr":"İhlal etmek çiğnemek"},{"en":"Compromise","tr":"Uzlaşmak anlaşmak , uzlaşmaya varmak"},{"en":"Testify","tr":"Şahitlik etmek"},{"en":"Impair","tr":"Zarar vermek"},{"en":"Bring down","tr":"Alt etmek devirmek yıkmak indirmek darbe yapmak"},{"en":"Assure of","tr":"Güvence vermek"},{"en":"Be fond of","tr":"Düşkün olmak , hevesli olmak"},{"en":"Convince of","tr":"İkna etmek"},{"en":"Take charge of","tr":"Üstlenmek"},{"en":"Beware of","tr":"Sakınmak , dikkat etmek"},{"en":"Dispose of","tr":"Atmak , elden çıkarmak"},{"en":"Boast of","tr":"İle övünmek"},{"en":"Be made up of","tr":"Den oluşmak"},{"en":"Convict of","tr":"Tutuklanmak"},{"en":"Despair of","tr":"Umudunu kesmek"},{"en":"Put aside","tr":"Kenara koymak ayırmak"},{"en":"Pin down","tr":"Belirlemek saptamak"},{"en":"Rife (with)","tr":"İle yaygın"},{"en":"Monumental","tr":"Devasa heybetli"},{"en":"Comply with","tr":"E uyumlu"},{"en":"Reconcile with","tr":"İle uzlaşmaya varmak , barışmak"},{"en":"Intermingle with","tr":"Birbirine karışmak"},{"en":"Tamper with","tr":"Kurcalamak değiştirmek bozmak zarar vermek"},{"en":"Harmonize with","tr":"İle uyum sağlamak"},{"en":"Endow with","tr":"Bağışlamak"},{"en":"Charge with","tr":"Tutuklamak"},{"en":"Coincide with","tr":"Rastgelmek denk gelmek çakışmak"},{"en":"Collide with","tr":"İle çarpışmak"},{"en":"Align with","tr":"Aynı hizada olmak aynı doğrultuda olmak"},{"en":"Grapple with","tr":"İle boğuşmak mücadele etmek"},{"en":"Be affiliated with","tr":"İle bağlı olmak , ilişkisi olmak"},{"en":"Interwine with","tr":"İç içe geçirmek , geçmek"},{"en":"Keep off","tr":"Uzak tutmak"},{"en":"Stringently","tr":"Şiddetli bir şekilde , bağlayıcı , sert bir şekilde"},{"en":"Illicity","tr":"Kanunsuz bir şekilde"},{"en":"Set off","tr":"Trigger tetiklemek"},{"en":"Intricately","tr":"Belirsiz bir şekilde karmaşık bir şekilde"},{"en":"Surpass","tr":"Geçmek (önüne) , aşmak"},{"en":"Be engaged in","tr":"İle meşgul olmak"},{"en":"Ease","tr":"Hafifletmek azaltmak"},{"en":"Prohibit","tr":"Yasaklamak"},{"en":"Oppress","tr":"Eziyet etmek"},{"en":"Vaguely","tr":"Belirsiz bir şekilde karmaşık bir şekilde"},{"en":"Comperatively","tr":"Kısmen , nispeten"},{"en":"Precisely","tr":"Kesin olarak"},{"en":"Utterly","tr":"Tamamen"},{"en":"Obsolete","tr":"Modası geçmiş"},{"en":"Unfounded","tr":"Asılsız"},{"en":"Appealing","tr":"Cezbetici"},{"en":"Enforcement","tr":"Uygulama"},{"en":"Requisite","tr":"Koşul"},{"en":"Dire","tr":"Vahim berbat"},{"en":"Mediocre","tr":"Vasat"},{"en":"Wicked","tr":"Aşağılık , kötü"},{"en":"Exacerbate","tr":"Kötüleştirmek yok etmek"},{"en":"Hamper","tr":"Engellemek"},{"en":"Amplify","tr":"Arttırmak"},{"en":"Roughly","tr":"Yaklaşık olarak , kabaca"},{"en":"..","tr":".."},{"en":"Make up for","tr":"Telafi etmek"},{"en":"Come down with","tr":"Hastalığa yakalanmak"},{"en":"Get away with","tr":"Cezalandırılmamak , yakalanmamak , yanına kar kalmak"},{"en":"Get away from","tr":"Uzak durmak"},{"en":"Look up to","tr":"Hayran olmak"},{"en":"Do away with","tr":"Ortadan kaldırmak"},{"en":"Keep up with","tr":"Ayak uydurmak"},{"en":"Compile","tr":"Derlemek"},{"en":"Lead up to","tr":"Zemin hazırlamak , ayak yapmak , yolunu yapmak"},{"en":"Get back to","tr":"E geri dönmek"},{"en":"Run out of","tr":"Tükenmek - sona ermek - bitirmek"},{"en":"Come up with","tr":"Fikir vs bulmak ortaya çıkarmak"},{"en":"Give away","tr":"Hibe etmek , bağışlamak , açığa vurmak , ifşa etmek belli etmek , ele vermek"},{"en":"Deficiency","tr":"Eksiklik , noksanlık , shortcoming"},{"en":"Allocate","tr":"Atamak tahsis etmek"},{"en":"Abolish","tr":"Yürürlükten kaldırmak"},{"en":"Abandon","tr":"Terketmek"},{"en":"Frankly","tr":"Açık açık , dobra dobra , açıkça , dobraca"},{"en":"Superficially","tr":"Yüzeysel , üstün körü , yalapşap"},{"en":"Intentionally","tr":"Deliberately , kasıtlı , bilinçli"},{"en":"Inherently","tr":"Doğası gereği , tabiatı gereği"},{"en":"Tactfully","tr":"Nazikçe , nezaketli bir şekilde , ilcitmeden , uygun bir şekilde"},{"en":"Warrant","tr":"Gerektirmek , temin etmek , garanti etmek , haklı çıkarmak (exonerate)"},{"en":"Ubiquitous","tr":"Heryerde bulunan , yaygın"},{"en":"Linger","tr":"Oyalanmak , kalıp gidememek , uzun süre kalmak , gitmekte zorlanmak"},{"en":"Imminent","tr":"Hemen , ani , acil , anında , hemen olmak üzere , eli kulağında"},{"en":"Concur","tr":"Aynı fikirde olmak , aynı zamana denk gelmek - kabul etmek"},{"en":"Remnant","tr":"Kalıntı"},{"en":"Suspend","tr":"Askıya almak , ertelemek"},{"en":"Corroborate - confirm","tr":"Doğrulamak"},{"en":"Scrutinize - examine","tr":"İncelemek"},{"en":"Commence - begin","tr":"Başlamak"},{"en":"Overcome - defeat","tr":"Üstesinden gelmek , yenmek , alt etmek"},{"en":"Signify - indicate","tr":"Belirtmek"},{"en":"Appreciate - valve","tr":"Takdir etmek"},{"en":"Withdraw - retreat","tr":"Geri çekilmek"},{"en":"Predisposition - propensity","tr":"Eğilim , yatkınlık"},{"en":"Steadly","tr":"Sabit ve durağan bir şekilde"},{"en":"Consideration","tr":"Göz önünde bulundurma"},{"en":"Invariably","tr":"Herzaman aynı şekilde , değişmemiş şekilde"},{"en":"Catalyst","tr":"Değişime sebep olan şey"},{"en":"Forge a method","tr":"Bir methot geliştirmek"},{"en":"Inspection","tr":"Gözetim , teftiş , inceleme"},{"en":"Surrender","tr":"Teslim olmak"},{"en":"Give rise to","tr":"Yol açmak , neden olmak , sebep olmak"},{"en":"Look into","tr":"Araştırmak incelemek"},{"en":"Induce","tr":"Neden olmak"},{"en":"Pervasive","tr":"Yaygın"},{"en":"Deepen","tr":"Derinleştirmek"},{"en":"Deduce","tr":"Çıkarım yapmak , sonuç çıkarmak"},{"en":"Defeat","tr":"Yenmek , üstesinden gelmek"},{"en":"Defend","tr":"Savunmak"},{"en":"Degeneration","tr":"Yozlaşma , aslını kaybetme"},{"en":"Pass over","tr":"Göz ardı etmek , overlook neglect"},{"en":"Give in","tr":"Boyun eğmek kabullenmek teslim olmak yield to submit to"},{"en":"Show off","tr":"Hava atmak , sergilemek"},{"en":"Lay out","tr":"Düzenlemek , ortaya koymak"},{"en":"Put on","tr":"Giyinmek , kilo almak"},{"en":"As long as","tr":"Dığı sürece"},{"en":"So long as","tr":"Dığı sürece"},{"en":"Assuming that","tr":"Varsayarsak varsayacak olursak"},{"en":"But for","tr":"Masa , masaydı"},{"en":"Provided that","tr":"Ancak , eğer , olmak kaydıyla"},{"en":"On condition that","tr":"Ancak , eğer , olmak kaydıyla"},{"en":"What if","tr":"Olursa , yapılırsa ne olur"},{"en":"Unless","tr":"Maksızın madıkça medikçe mazsa"},{"en":"Without","tr":"Maksızın"},{"en":"Rudimentary - primitive","tr":"İlkel"},{"en":"Pernicious - hazardous","tr":"Tehlikeli"},{"en":"Mishap - setback","tr":"Aksilik"},{"en":"Intercept - prevent","tr":"Engellemek"},{"en":"Impeccable - flawless","tr":"Kusursuz pürüzsüz"},{"en":"Fraudulent - tricky","tr":"Hileli"},{"en":"Renounce - forsake","tr":"Vazgeçmek"},{"en":"Menace - threat","tr":"Tehdit"},{"en":"Hostility - enmity","tr":"Düşmanlık"},{"en":"Consent","tr":"Rıza göstermek , razı olmak"},{"en":"Conceal","tr":"Gizlemek"},{"en":"Eliminate","tr":"Yok etmek , ortadan kaldırmak"},{"en":"Distract","tr":"Dikkatini dağıtmak"},{"en":"Sacrify","tr":"Kurban etmek"},{"en":"Inquiry","tr":"Soruşturma"},{"en":"Collision","tr":"Çarpışma"},{"en":"Remarkably","tr":"Önemli ölçüde"},{"en":"Fortify","tr":"Desteklemek"},{"en":"Exceed","tr":"Aşmak geçmek"},{"en":"Figure out","tr":"Anlamak"},{"en":"Alliance","tr":"Aynı safta olmak , müttefik , antlaşma"},{"en":"Dissolve","tr":"Eritmek , çözmek , feshetmek , çözünmek"},{"en":".","tr":"."},{"en":"Cool down","tr":"Sakin olmak"},{"en":"Count upon","tr":"Rely on , trust , güvenmek , bel bağlamak"},{"en":"Cut down","tr":"Azaltmak"},{"en":"Range against","tr":"Karşı olmak , birisine karşı saf tutmak"},{"en":"Strive","tr":"Mücade etmek , çabalamak , gayret etmek"},{"en":"Assign","tr":"Atamak  , tahsis etmek"},{"en":"Find out","tr":"Öğrenmek"},{"en":"Identify with","tr":"Özdeşleşmek"},{"en":"Thrust on","tr":"Zorla yaptırmak"},{"en":"Conspire","tr":"Komplo kurmak , tuzak kurmak , ambush"},{"en":"Hinder","tr":"Engellemek"},{"en":"Instantaneously","tr":"Anında , derhal , hemen , o an , simultane olarak"},{"en":"Accomplished","tr":"Başarılı yetkin"},{"en":"Compilation","tr":"Derleme"},{"en":"Absence","tr":"Yokluk , bulunmayış"},{"en":"Resemblance","tr":"Benzerlik"},{"en":"Compelling","tr":"İkna edici"},{"en":"Compulsion","tr":"Zorlama , dürtü"},{"en":"Delicacy","tr":"Zerafet , incelik , hassaslık"},{"en":"Deviancy","tr":"Sapma , sapkınlık , normalden farklı , uygunsuzluk"},{"en":"Run out on","tr":"Birini dımdızlak ortada  bırakmak , terketmek , abandon"},{"en":"Run out of","tr":"Tükenmek , bitirmek , sona ermek"},{"en":"Refrain from","tr":"Kaçınmak"},{"en":"Put forward","tr":"Ön görmek"},{"en":"Put out","tr":"Söndürmek ,(ısı),  yaymak , vermek üretmek"},{"en":"Look up to","tr":"Hayranlık duymak , hayranlık beslemek"},{"en":"Pull through","tr":"Atlatmak , paçayı kurtarmak"},{"en":"Look into","tr":"Araştırmak incelemek"},{"en":"Eradicate","tr":"Yok etmek"},{"en":"Display","tr":"Sergilemek"},{"en":"Massive","tr":"Devasa , çok büyük"},{"en":"Profound","tr":"Engin , derin , temel , büyük"},{"en":"Successive","tr":"Ardışık , birbirini izleyen"},{"en":"Ceaseless","tr":"Durmaksızın , aralıksız"},{"en":".","tr":"."},{"en":"Imperceptible","tr":"Fark edilmeyen , görülmez"},{"en":"Meddle","tr":"Karıştırmak kurcalamak burnunu sokmak"},{"en":"Annihilate","tr":"Yok etmek"},{"en":"Recuperate","tr":"İyileşmek toparlanmak telafi etmek"},{"en":"Excruciating","tr":"Dayanılmaz"},{"en":"Unanimously","tr":"Oy birliğiyle"},{"en":"Irrevocable","tr":"Geri alınamaz"},{"en":"Prevail over","tr":"Galip gelmek üstün gelmek"},{"en":"Deviate from","tr":"Den sapmak , den ayrılmak"},{"en":"Vent","tr":"Duygularını dışarıya vurmak , hava vs açığa vurmak , havalandırmak"},{"en":"Heed","tr":"Kulak kesilmek , dikkate almak"},{"en":"Spearhead - pioneer","tr":"Öncülük etmek"},{"en":"Allude","tr":"İma etmek , değinmek"},{"en":"Forge","tr":"Geliştirmek , sahtesini yapmak , oluşturmak , demir dövmek , ilerlemek"},{"en":"Envisage","tr":"Ön görmek"},{"en":"Perish","tr":"Yok olmak , can vermek"},{"en":"Emancipate","tr":"Özgür bırakmak"},{"en":"Reckon","tr":"Sanmak düşünmek"},{"en":"Humiliate","tr":"Aşağılamak"},{"en":"Bewitch","tr":"Hayran bırakmak , büyülemek"},{"en":"Stipulate","tr":"Şart koşmak"},{"en":"Summon","tr":"Resmi bir şekilde davet etmek , çağrıda bulunmak"},{"en":"Overstate","tr":"Abartmak büyütmek"},{"en":"Discern","tr":"Ayırt etmek"},{"en":"Configure","tr":"Düzenlemek , ayarlamak"},{"en":"Reframe","tr":"Farklı açıdan bakmak , yeniden çerçevelendirmek"},{"en":"Disclose","tr":"İfşa etmek , aydınlığa çıkarmak , açığa çıkarmak"},{"en":"Concede","tr":"Kabul etmek kabullenmek"},{"en":"Offset","tr":"Dengelemek , telafi etmek"},{"en":"Distort","tr":"Bozmak , tahrif etmek , çarpıtmak"},{"en":"Curb","tr":"Sınırlamak , kontrol altına almak"},{"en":"Merge","tr":"Birleşmek"},{"en":"Legitimize","tr":"Meşrulaştırmak"},{"en":"Contaminate","tr":"Kirletmek"},{"en":"Exert","tr":"Uygulamak , kullanmak (güç etki vs)"},{"en":"Enforce","tr":"Yürürlüğe koymak , zorla kabul ettirmek"},{"en":"Reside","tr":"İkamet etmek , yaşamak"},{"en":"Preside","tr":"Başkanlık yapmak , yönetmek"},{"en":"Curtail","tr":"Azalmak azaltmak"},{"en":"Overhaul","tr":"Gözden geçirmek , revizyon , baştan aşağı yapmak"},{"en":"Defer","tr":"Ertelemek"},{"en":"Disseminate","tr":"Yaymak saçmak (fikir düşünce)"},{"en":"Relinquish","tr":"Bırakmak , vazgeçmek"},{"en":"Fabricate","tr":"Uydurmak"},{"en":"Withstand","tr":"Karşı koymak , dayanmak"},{"en":"Reap","tr":"Elde etmek (kazanç sonuç)"},{"en":"Deem","tr":"Varsaymak …. Olarak kabul etmek , pass for"},{"en":"Repudiate","tr":"Reddetmek , turn down"},{"en":"Besiege","tr":"Kuşatmak"},{"en":"Plummet","tr":"Azalmak azaltmak"},{"en":"Extrapolate","tr":"Tahmin yürütmek"},{"en":"Favour","tr":"Den yana olmak , desteklemek"},{"en":"Charm","tr":"Cezbetmek çekmek"},{"en":"Surmount","tr":"Üstesinden gelmek"},{"en":"Ardently","tr":"Gayretle , çoşkuyla"},{"en":"Exhaust","tr":"Bitkin düşmek , yorulmak"},{"en":"Elapse","tr":"(Zaman) akıp gitmek , geçmek"},{"en":"Decipher","tr":"Şifresini çözmek"},{"en":"Plunge (into)","tr":"Hızla düşmek azalmak"},{"en":"Cynical","tr":"Çığır açan , keşif , groundbreaking"},{"en":"Console","tr":"Teselli etmek"},{"en":"Plague","tr":"Veba , bela olmak , musallat olmak"},{"en":"Dull","tr":"Tedious - sıkıcı"},{"en":"Sternly","tr":"Sert bir şekilde"},{"en":"Frantically","tr":"Delice , çoşkuyla"},{"en":"Admitedly","tr":"Kuşkusuz , itiraf etmek gerekirse"},{"en":"Proclaim","tr":"İlan etmek , resmen duyurmak"},{"en":"Daunting","tr":"Korkutucu , ürkütücü"},{"en":"Ingenuous","tr":"Becerik , yaratıcı"},{"en":"Intriguing","tr":"ilgi çekici , merak uyandıran , appealing"},{"en":"Admonish","tr":"Uyarmak , öğütlemek , azarlamak"},{"en":"Ambush","tr":"Tuzağa düşürmek , pusu kurmak"},{"en":"Laborious","tr":"Zahmetli , çok çaba gerektiren"},{"en":"Dignified","tr":"Saygılı , hoşgörülü"},{"en":"Revoke","tr":"Yürürlükten kaldırmak"},{"en":"Blush","tr":"Yüzü kızarmak"},{"en":"Abhor","tr":"İğrenmek tiksinmek"},{"en":"Convenient","tr":"Uygun elverişli"},{"en":"Segregation","tr":"Ayrımcılık , ayrım"},{"en":"Hand out","tr":"Dağıtmak"},{"en":"Get on","tr":"İyi geçinmek"},{"en":"Eccentrically","tr":"Garip bir şekilde"},{"en":"Decently","tr":"Adam gibi , düzgün bir şekilde , uygun olarak"},{"en":"Prioritize","tr":"Öncelik vermek"},{"en":"Go against","tr":"Karşı gelmek aykırı olmak"},{"en":"Pick up","tr":"Toplamak , bir yerden almak"},{"en":"Preferentially","tr":"Tercihen"},{"en":"Embark on - take on - embrace","tr":"Benimsemek"},{"en":"Fruitless","tr":"Verimsiz sonuçsuz"},{"en":"Dwell on","tr":"Bir konu üzerinde çalışmak"},{"en":"Replenishment","tr":"Yenilenme"},{"en":"Envisage","tr":"Ön görmek , kafasında canlandırmak"},{"en":"Wind down","tr":"Dinlenmek"},{"en":"Palpably","tr":"Açıkça"},{"en":".","tr":"."},{"en":"Dismissively","tr":"İlgisizce , hoşgörüsüzce"},{"en":"Get on","tr":"İyi geçinmek , binmek (uçak)"},{"en":"Come along","tr":"Ortaya çıkmak"},{"en":"Come through","tr":"Üstesinden gelmek"},{"en":"Entanglement","tr":"Engel karışıklık"},{"en":"Stagnation","tr":"Durgunluk"},{"en":"Superfical","tr":"Yüzeysel , üstünkörü"},{"en":"Inextricably","tr":"Ayrılmaz , içinden çıkılmaz bir şekilde"},{"en":"Irresolutely","tr":"İradesizce , karışık bir şekilde"},{"en":"Inherently","tr":"Doğası gereği , tabiatı gereği"},{"en":"Substantially","tr":"Büyük ölçüde"},{"en":"Swing","tr":"Sallamak"},{"en":"Disused","tr":"Kullanılmayan"},{"en":"Miraculous","tr":"Mucizevi"},{"en":"Treacherous","tr":"Aldatıcı , güvenilmez"},{"en":"Miserable","tr":"Sefil"},{"en":"Vacancy","tr":"Kadro , boşluk"},{"en":"Wrinkle","tr":"Kırışıklık"},{"en":"Leave out","tr":"Hariç tutmak , dışında tutmak exclude"},{"en":"Postpone","tr":"Askıya almak , ertelemek"},{"en":"Breeding","tr":"Yetiştirmek"},{"en":"Pass down","tr":"Nesilden nesile aktarmak"},{"en":"Resiliance","tr":"Dirençlilik , geri tepme"},{"en":"Traitor","tr":"Hain"},{"en":"Longingly","tr":"Özlem duyarak"},{"en":"Instinctively","tr":"İçgüdüsel olarak"},{"en":"Chase","tr":"Kovalamak"},{"en":"Sinful","tr":"Günahkar"},{"en":"Elegantly","tr":"Zarif bir şekilde , nazikçe , uygun bir şekilde"},{"en":"Humble","tr":"Mütevazi"},{"en":"Retard","tr":"Geçiktirmek"},{"en":"Loathe","tr":"Tiksinmek , iğrenmek , nefret etmek"},{"en":"Crawl","tr":"Emeklemek , sürünmek"},{"en":"Furiously","tr":"Öfkeyle"},{"en":"Outspoken","tr":"Açık sözlü"},{"en":"Amend","tr":"Üzerinde değişiklik yapmak"},{"en":"Intentionally","tr":"Kasıtlı bir şekilde , bilinçli bir şekilde"},{"en":"Flee","tr":"Kaçmak , sıvışmak , kaçınmak"},{"en":"Hatred","tr":"Nefret"},{"en":"Ornate","tr":"Süslemek"},{"en":"Diligent","tr":"Gayretli , özenli"},{"en":"Massacre","tr":"Katliam"},{"en":"Dissuade","tr":"Çaydırmak"},{"en":"Sneaky","tr":"Sinsi"},{"en":"Stingy","tr":"Pinti cimri"},{"en":"Scarnfully","tr":"Küçümseyerek"},{"en":"Incessantly","tr":"Aralıksız , durmaksızın"},{"en":"Posture","tr":"Vücut duruşu , tutum , v ; dik durmak , kasılmak"},{"en":"Demonize","tr":"Şeytanlaştırmak"},{"en":"Fertilize","tr":"Gübrelemek"},{"en":"Terrorize","tr":"Korku salmak"},{"en":"Revolutionize","tr":"Devrim yapmak köklü değişiklik yapmak"},{"en":"Agonize","tr":"Büyük acı çekmek"},{"en":"Brutalize","tr":"Vahşileştirmek"},{"en":"Civilize","tr":"Medenileştirmek"},{"en":"Commercialize","tr":"Ticarileştirmek , pazarlamak"},{"en":"Customize","tr":"Kişiselleştirmek , özelleştirmek"},{"en":"Decentralize","tr":"Merkezden dağıtmak"},{"en":"Materialize","tr":"Gerçekleştirmek"},{"en":"Neutralize","tr":"Etkisizleştirmek"},{"en":"Publicize","tr":"Duyurmak , ilan etmek"},{"en":"Codify","tr":"Kanunlatırmak , sistemleştirmek"},{"en":"Dignify","tr":"Yüceltmek ,değer vermek"},{"en":"Falsify","tr":"Sahtesini yapmak , tahrif etmek"},{"en":"Glorify","tr":"Yüceltmek , övmek"},{"en":"Magnify","tr":"Büyütmek abartmak"},{"en":"Verify","tr":"Doğrulamak"},{"en":"Unify","tr":"Birleştirmek"},{"en":"Solidify","tr":"Sağlamlaştırmak , katılaştırmak"},{"en":"Rectify","tr":"Düzenlemek"},{"en":"Ratify","tr":"Onaylamak (resmi olarak)"},{"en":"Pacify","tr":"Yatıştırmak , sakinleştirmek , bastırmak , rahatlatmak"},{"en":"Nullify","tr":"Geçersiz kılmak"},{"en":"Blacken","tr":"Karartmak"},{"en":"Darken","tr":"Karartmak"},{"en":"Embolden","tr":"Cesaretlendirmek"},{"en":"Enliven","tr":"Canlandırmak"},{"en":"Fasten","tr":"Bağlamak , sabitlemek"},{"en":"Flatten","tr":"Düzleştirmek"},{"en":"Frighten","tr":"Korkutmak"},{"en":"Loosen","tr":"Gevşeltmek"},{"en":"Redden","tr":"Kızartmak"},{"en":"Ripen","tr":"Olgunlaştırmak"},{"en":"Sharpen","tr":"Keskinleştirmek"},{"en":"Sicken","tr":"Hasta etmek"},{"en":"Stiffen","tr":"Sertleştirmek"},{"en":"Thicken","tr":"Kalınlaştırmak"},{"en":"Widen","tr":"Genişletmek"},{"en":"Toughen","tr":"Sertleştirmek"},{"en":"Harvest","tr":"Hasat etmek , hasat"},{"en":"Prospect","tr":"Olasılık"},{"en":"Appeal","tr":"Başvuru , çağrı"},{"en":"Ruin","tr":"Mahvetmek"},{"en":"Curtail x2","tr":"Azalmak azaltmak"},{"en":"Divulge","tr":"İfşa etmek , açığa çıkarmak"},{"en":"Preclude","tr":"Engellemek"},{"en":"Rampant","tr":"Yaygın"},{"en":"Inadvertent","tr":"İstemsiz , istemeden , gönülsüz"},{"en":"Cogent","tr":"İkna edici"},{"en":"Adept","tr":"Becerikli , uzman"},{"en":"Abstention","tr":"Çekimserlik , kaçınma"},{"en":"Unattainable","tr":"Ulaşılamaz , elde edilemez"},{"en":"Disputably","tr":"Tartışmalı bir şekilde"},{"en":"Summon","tr":"Resmi olarak bir çağrıda bulunmak , çağırmak"},{"en":"Petrify","tr":"Ödünü koparmak , korkutmak"},{"en":".","tr":"."},{"en":"Settle down","tr":"Yerleşmek"},{"en":"Come across","tr":"Karşılaşmak , rastgelmek , karşı karşıya gelmek"},{"en":"Get off","tr":"Arabadan inmek , yırtmak"},{"en":"Get in","tr":"Arabaya binmek , içeri girmek"},{"en":"Set out","tr":"Yolculuğa çıkmak"},{"en":"Take up","tr":"( yeniden başlamak ) , zaman almak , yer kaplamak"},{"en":"Hold up","tr":"Retard geçiktirmek , göstermek , soymak"},{"en":"Access to","tr":"E erişim"},{"en":"Sanitary","tr":"Hijyen (koşulları)"},{"en":"Extract","tr":"Özünü çıkarmak"},{"en":"Throw up","tr":"Kusmak , istifrar etmek"},{"en":"Jeopardize","tr":"Tehlikeye sokmak"},{"en":"Disaster","tr":"Felaket"},{"en":"Literally","tr":"Gerçekten , resmen , tam anlamıyla"},{"en":"Cease","tr":"Durmak durdurmak"},{"en":"Intend to do smt","tr":"Bir şey  yapmayı amaçlamak"},{"en":"Contagious","tr":"Bulaşıcı"},{"en":"Dismiss","tr":"Kovmak , defetmek ( laf off )"},{"en":"Mount","tr":"Binmek ( yaygın kullanım ) , çoğalmak"},{"en":"In advance","tr":"Öncesinde , peşinen"},{"en":"Strife with","tr":"Mücadele , tartışma"},{"en":"Quarrel with","tr":"Tartışmak , bozuşmak , papaz olmak"},{"en":"Fundamentally","tr":"Temelde , esasen"},{"en":"Alternately","tr":"Sıra ile , nöbetleşe , karşılıklı"},{"en":"Urgently","tr":"Acilen"},{"en":"Densely","tr":"Yoğun olarak"},{"en":"Obsurely","tr":"Belirsiz bir şekilde"},{"en":"Crucially","tr":"Önemli ölçüde"},{"en":"Virtually","tr":"Almost , neredeyse"},{"en":"Proportionally","tr":"Orantılı bir şekilde"},{"en":"Firmly","tr":"Sıkı ve sert bir şekilde"},{"en":"Disillusion","tr":"Hayal kırıklığına uğratmak"},{"en":"Let down","tr":"Hayal kırıklığına uğratmak"},{"en":"Fall through","tr":"Başarısız olmak"},{"en":"Defect","tr":"Arıza kusur"},{"en":"Prosperous","tr":"Zengin , well off , başarılı , refah , elverişli , varlıklı"},{"en":"Espouse","tr":"Benimsemek , ile evlenmek , bir fikri desteklemek"},{"en":"Expel","tr":"Dismiss kovmak , defetmek , lay off"},{"en":"Abide by","tr":"e uymak, (bir şeyi) kabul etmek"},{"en":"Budget","tr":"Bütçe"},{"en":"Bargain/bargain for","tr":"Pazarlık etmek , kelepir , for ; ummak beklemek"},{"en":"Burden","tr":"Yük , sorumluluk"},{"en":"Outbreak","tr":"Patlak vermek , salgın"},{"en":"Fade away","tr":"Solmak , ortadan kaybolmak , yok olmak , unutulup gitmek (yavaş yavaş)"},{"en":"Look around for","tr":"Etrafına bakınmak , aramak"},{"en":"Elaborately","tr":"Ayrıntılı bir şekilde , özenle , itinayla"},{"en":"Break away","tr":"Kurtulmak , sıvışmak"},{"en":"Switch to","tr":"E dönüş yapmak"},{"en":"Urban sprawl","tr":"Çarpık kentleşme , çarpık , dağınık"},{"en":"Decimate","tr":"Yok etmek , kırıp geçmek"},{"en":"Suffuse","tr":"Kaplamak , doldurmak , bürümek"},{"en":"Lambast","tr":"Topa tutmak , şiddetli şekilde dövmek , zalimce azarlamak"},{"en":"Superfluous","tr":"Abartı , gereksiz , aşırı , yersiz , fazla"},{"en":"Flamboyant","tr":"Göz alıcı , cazibeli"},{"en":"Remunerate","tr":"Ödeme yapmak , emeğinin karşılığını vermek , saymak"},{"en":"Renumerate","tr":"Tekrar saymak , yeniden saymak"},{"en":"Conceit","tr":"Kibir"},{"en":"Liaise","tr":"İrtibat ve ilişki kurmak , iş birliği yapmak"},{"en":"Abrogate","tr":"Yürürlükten kaldırmak (repeal)"},{"en":"Ask out","tr":"Dışarı davet etmek"},{"en":"Break off","tr":"Bozulmak , ilişkiyi kesmek , sona ermek"},{"en":"Do over","tr":"Yeniden baştan başlamak"},{"en":"Draw back","tr":"Vazgeçmek , geriye doğru gitmek"},{"en":"Fall over","tr":"Düşmek , devrilmek"},{"en":"Fall off","tr":"Düşmek , dökülmek , çürümek , azalmak"},{"en":"Get over","tr":"Üstesinden gelmek , iyileşmek"},{"en":"Hold off","tr":"Ertelemek , uzak tutmak"},{"en":"Use up","tr":"Kullanıp bitirmek , tüketmek run out"},{"en":"Be likely to","tr":"Olması muhtemel , ihtimal"},{"en":"Be meant to","tr":"Gereklilik , beklenti"},{"en":"Be about to","tr":"Mek üzere olmak"},{"en":"Be supposed to","tr":"Zorunluluk , yükümlü olmak , gerekmek"},{"en":"Be due to","tr":"Den kaynaklanmak , borçlu olmak, den ileri gelmek"},{"en":"Advocate","tr":"Savunmak , desteklemek"},{"en":"Commemorate","tr":"Anmak , hatırlamak"},{"en":"Cultivate","tr":"Yetiştirmek , geliştirmek , folster"},{"en":"Delegate","tr":"Yetki , görev vermek"},{"en":"Elaborate","tr":"Ayrıntılandırmak"},{"en":"Illustrate","tr":"Örneklerle açıklamak"},{"en":"Implicate","tr":"Bulaştırmak (suç vs) , ima etmek"},{"en":"Congregate","tr":"Bir araya toplanmak , bir araya gelmek ,"},{"en":"Confiscate","tr":"El koymak müsadere etmek"},{"en":"Deliberate","tr":"Düşünüp taşınmak , müzakere etmek , bilinçli kasıtlı"},{"en":"Aspirate","tr":"Emmek"},{"en":"Arbitrate","tr":"Arabuluculuk yapmak"},{"en":"Ameliorate","tr":"İyileştirmek , düzenlemek"},{"en":"Alternate","tr":"Sırayla , nöbetleşe , karşılıklı yapmak"},{"en":"Agitate","tr":"Provoke etmek , kışkırtmak, çalkalamak"},{"en":"Abdicate","tr":"Feraget etmek (tahttan vs)"},{"en":"Negotiate","tr":"Müzakere etmek"},{"en":"Expropriate","tr":"Kamulaştırmak"},{"en":"Gravitate","tr":"Çekilmek , meyletmek"},{"en":"Hallucinate","tr":"Halüsinasyon görmek"},{"en":"Subordinate","tr":"Tabi kılmak , aşağı görmek"},{"en":"Resuscitate","tr":"Hayata döndürmek , diriltmek"},{"en":"Illuminate","tr":"Aydınlatmak"},{"en":"Impersonate","tr":"Taklit etmek"},{"en":"Incarcerate","tr":"Hapsetmek"},{"en":"Obliterate","tr":"Yok etmek"},{"en":"Manipulate","tr":"Yönlendirmek , idare etmek"},{"en":".","tr":"."},{"en":"Rife with corruptions","tr":"Yolsuzluklarla dolu"},{"en":"Brush up","tr":"Bilgileri tazelemek"},{"en":"Hammer out/thrash out","tr":"Şekil vermek , tartışarak çözümlemek , bir anlaşmaya varmak"},{"en":"Spark off","tr":"Yol açmak neden olmak ateşlemek teşvik etmek"},{"en":"Contend with","tr":"İle mücadele etmek , ile uğraşmak"},{"en":"Bring up","tr":"Çoçuk büyütmek , gündeme getirmek"},{"en":"Remove","tr":"Yürürlükten kaldırmak"},{"en":"Hesitantly","tr":"Tereddütle , kararsız bir şekilde"},{"en":"Switch off","tr":"Kapatmak , söndürmek (ışık vs)"},{"en":"Set back","tr":"Geriletmek , geçiktirmek , ilerlemesini engellemek"},{"en":"Scale down","tr":"Küçültmek azaltmak"},{"en":"Abusively","tr":"Kötüye kullanarak"},{"en":"Spoil","tr":"Bozmak , mahvetmek , şımartmak , berbat etmek"},{"en":"Compliment","tr":"İltifat , övgü"},{"en":"Complaint","tr":"Şikayet"},{"en":"Uniquely","tr":"Eşsiz bir şekilde"},{"en":"Resignation","tr":"İstifa , kabullenme"},{"en":"Found","tr":"Kurmak , inşa etmek , temel atmak"},{"en":"Built upon","tr":"Üzerine inşa etmek , e dayalı olmak"},{"en":"Province","tr":"İl , eyalet"},{"en":"Die out","tr":"Yok olmak , nesli tükenmek"},{"en":"Look after","tr":"İlgilenmek bakmak"},{"en":"Purify","tr":"Arıtmak"},{"en":"Specify","tr":"Belirtmek , açıklamak"},{"en":"Sort out","tr":"Anlamak çözmek halletmek"},{"en":"Dwindle","tr":"Azalmak azaltmak"},{"en":"Shrink","tr":"Psikiyatrist , küçülmek , büzülmek , büzüşmek , azalmak , azaltmak"},{"en":"Subside","tr":"Geçmek , dinmek (rüzgar vs) sakinleşmek , azalmak"},{"en":"Reflect on","tr":"Yansımak - derinlemesine düşünmek - ayıplamak - kusur bulmak"},{"en":"Temptation","tr":"Şeytana uymak"},{"en":"Supervision","tr":"Gözetim , kontrol , denetleme"},{"en":"Pull down","tr":"Yıkmak , indirmek, devirmek"},{"en":"Demolish","tr":"Yıkmak , tahrif etmek , yiyip bitirmek"},{"en":"Affiliation","tr":"İlişki , bağlantı , üyelik , ortaklık"},{"en":"Tackle","tr":"(Problem) ele almak , mücadele etmek"},{"en":"Oddity","tr":"Garip , tuhaf , anormallik"},{"en":"Circumvent","tr":"Kaçmak , kaçınmak , atlatmak"},{"en":"Venture","tr":"Teşebbüs  , attempt"},{"en":"Intervention","tr":"Müdahale"},{"en":"Advent","tr":"Gelme , meydana geliş"},{"en":"Malignant","tr":"Kötü huylu"},{"en":"Benigh","tr":"İyi huylu"},{"en":"Reverberate","tr":"Yankılanmak"},{"en":"Exempt from","tr":"Muaf olmak"},{"en":"Confess to","tr":"İtiraz etmek"},{"en":"Look forward","tr":"Dört gözle beklemek"},{"en":"Concern","tr":"Endişelenmek , ilgili"},{"en":"Acquaint sb with","tr":"Bilgilendirmek"},{"en":"Clutter with","tr":"Yığmak , üst üste koymak , yığın yapmak"},{"en":"Cram with","tr":"Doldurmak"},{"en":"Stare at","tr":"Gözlerini dikerek bakmak , dik dik bakmak"},{"en":"Rejoice at","tr":"Sevinmek"},{"en":"Go in for","tr":"Bir işe girişmek  , kalkışmak"},{"en":"Range","tr":"Ara , dizi , sıra , menzil"},{"en":"Tidy","tr":"Düzenli"},{"en":"Annually","tr":"Senede bir , yılda bir"},{"en":"Anniversary","tr":"Yıl dönümü"},{"en":"Dreadful","tr":"Korkunç , rezalet"},{"en":"Pass away","tr":"Vefat etmek , ölmek"},{"en":"Bump into","tr":"Rastgelmek , çarpışmak , collide"},{"en":"Heat up","tr":"Kızışmak , ısıtmak , kızdırmak"},{"en":"Point out","tr":"Göstermek , işaret etmek , belirtmek , işaret etmek"},{"en":"Queve","tr":"Kuyruk , sıra , dizi"},{"en":"Row","tr":"Sıra dizi"},{"en":"Reinforce","tr":"Güçlendirmek pekiştirmek"},{"en":"Preliminary","tr":"İlk , ön hazırlık"},{"en":"Squeeze","tr":"Sıkıştırmak , baskı yapmak"},{"en":"Greed","tr":"Aç gözlü"},{"en":"Grim","tr":"Karamsar"},{"en":"Execute","tr":"İdam etmek , uygulamak , yerine getirmek"},{"en":"Ample","tr":"Bol , bereketli"},{"en":"Contemplate","tr":"Düşünmek , tasarlamak ,conceive"},{"en":"Endorse","tr":"Doğrulamak , ciro etmek , desteklemek , tavsiye etmek"},{"en":"Stubborn","tr":"İnatçı (ceren)"},{"en":"Succumb","tr":"Yenik düşmek"},{"en":"Elucidate","tr":"Açıklamak"},{"en":"Entail","tr":"Gerektirmek , içermek ,"},{"en":"Go away","tr":"Uzaklaşmak"},{"en":"Run away","tr":"Kaçmak"},{"en":"Throw away","tr":"Çöp atmak"},{"en":"Give away","tr":"Hibe etmek , bağışlamak , aydınlatmak"},{"en":"Put away","tr":"Yerine koymak"},{"en":"Take away","tr":"Alıp gitmek"},{"en":"Fade away","tr":"Ortadan kaybolmak , yok olmak , unutulup gitmek , solmak"},{"en":"Hurry away","tr":"Hızla uzaklaşmak"},{"en":"Respiratory","tr":"Solunum"},{"en":"Hereditory","tr":"Kalıtsal"},{"en":"Substantiate","tr":"Kanıtlamak doğrulamak confirm prove"},{"en":"Wipe out","tr":"Revoke , eliminate , abolish , destroy , exterminate"},{"en":"Impede","tr":"Engellemek , geçiktirmek , hamper"},{"en":"Plausible","tr":"Makul , akla yatkın"},{"en":"Allegation","tr":"İddia , suçlama"},{"en":"Intrude","tr":"Rahatsız etmek , izinsiz girmek"},{"en":"Subtle","tr":"İnce , güç algılanan, gizli"},{"en":"Boorish","tr":"Kaba"},{"en":"Adorn","tr":"Süslemek"},{"en":"Vengeful","tr":"Kinci , intikamcı"},{"en":"Retain","tr":"Sürdürmek , alıkoymak"},{"en":"Sustain","tr":"Sürdürmek , güç vermek"},{"en":"Detain","tr":"Gözaltına almak"},{"en":"Attain","tr":"Elde etmek"},{"en":"Obtain","tr":"Elde etmek"},{"en":"Contain","tr":"İçermek , kapsamak"},{"en":"Curtain","tr":"Perde , örtmek"},{"en":"Pertain","tr":"Ait olmak , uymak"},{"en":"Discreet","tr":"Sağduyulu , dilini tutan , ağzı sıkı"},{"en":"Consecutively","tr":"Ardaşık olarak"},{"en":"Slightly","tr":"Belli belirsiz"},{"en":"Inclusion","tr":"Katılma , dahil olma"},{"en":"Yearn for","tr":"Özlem duyma"},{"en":"Arrest for","tr":"Tutuklanmak"},{"en":"Inquire into","tr":"Soruşturmak"},{"en":"Negligible","tr":"Önemsiz , trivial"},{"en":"Intervention","tr":"Müdahale"},{"en":"Spoil","tr":"Şımartmak berbet etmek mahvetmek bozmak"},{"en":"Cut up","tr":"Kopartmak , koparmak"},{"en":"Clear up","tr":"Tahliye etmek , ortadan kaldırmak"},{"en":"Fierce","tr":"Sıkı sert"},{"en":".","tr":"."},{"en":"Vain","tr":"Futile , boş , nafile"},{"en":"Adjustment","tr":"Ayarlama , uyum"},{"en":"Uniqueness","tr":"Benzersiz , eşsiz"},{"en":"Precision","tr":"Kesinlik hassasiyet"},{"en":"Retention","tr":"Muhafaza"},{"en":"Confusion","tr":"Kafa karışıklığı"},{"en":"Fight down","tr":"Kovmak , savmak"},{"en":"Advance","tr":"İlerleme"},{"en":"Sanction","tr":"Yaptırım , müeyyide"},{"en":"Forecast","tr":"Tahmin etmek , ön görme"},{"en":"Distraction","tr":"Dikkat dağıtma"},{"en":"Astonish","tr":"Şaşırtmak , hayrete düşürmek"},{"en":"Eager","tr":"İstekli , hevesli"},{"en":"Causalty","tr":"Kayıp , kazazede"},{"en":"Fall for","tr":"Kanmak , çok beğenmek , aşık olmak"},{"en":"Postpone","tr":"Ertelemek"},{"en":"Endurance","tr":"Dayanıklılık"},{"en":"Fill out","tr":"Doldurmak (form vs)"},{"en":"Aggrandize","tr":"Yüceltmek , büyütmek , abartmak , attırmak"},{"en":"Enlarge","tr":"Büyütmek , genişletmek , genişlemek"},{"en":"Scale up","tr":"Büyütmek , yükseltmek , arttırmak , artmak ,"},{"en":"Fragility","tr":"Kırılganlık"},{"en":"Hurdle","tr":"Obstruction obstacle impediment (engel ) barrier"},{"en":"Ineluctable","tr":"Inexorable , inevitable , kaçınılmaz"},{"en":"Staggering - startling-bewildering","tr":"Şaşırtıcı , perplexing"},{"en":"Colossal","tr":"Massive , huge ,enormous, immense"},{"en":"Smash","tr":"Collide - çarpışmak ,  hit , crash"},{"en":"Come under","tr":"Yetki alanına girmek"},{"en":"Unbearably","tr":"Dayanılmaz katlanılmaz bir şekilde"},{"en":"Disburden","tr":"Allay , soathe , mitigate ,  alleviate , facilitate, ease , relieve"},{"en":"Evaporate","tr":"Buharlaşmak"},{"en":"Mine","tr":"Kazıp çıkarmak"},{"en":"Befall","tr":"Ensue , come about , transpire , occur - meydana gelmek"},{"en":"Invoke","tr":"Çağırmak , başvurmak (kanun güç vb) , call upon"},{"en":"Pertinent","tr":"Konuyla ilgili , ilgili , germane , relevant"},{"en":"Render","tr":"Hale getirmek ,kılmak , eritmek (yağ) , sunmak , vermek"},{"en":"Conjecture","tr":"Varsayım tahmin"},{"en":"Rebut","tr":"Çürütme"},{"en":"Eminently","tr":"Son derece , fazlasıyla"},{"en":"Peel","tr":"Kabuğunu soymak"},{"en":"Feign","tr":"Mış gibi yapmak  , yapar gibi görünmek"},{"en":"Straightforward","tr":"Anlaşılması kolay , basit , düz"},{"en":"Infrastructure","tr":"Altyapı"},{"en":"Transplantable","tr":"Nakledilebilir"},{"en":"Circumstance","tr":"Durum , koşul"},{"en":"Extravagantly","tr":"Savurgan bir şekilde , hoyratca"},{"en":"Inheritance","tr":"Miras , kalıtım"},{"en":"Rejuvenate","tr":"Gençleşmek , dinçleşmek"},{"en":"Rob","tr":"soygun , soygun yapmak"},{"en":"Harass","tr":"Taciz etmek , rahatsız etmek"},{"en":"Deplore","tr":"Kınamak , üzüntü duymak"},{"en":"Cease","tr":"son vermek , durdurmak ,"},{"en":"Apprehensive","tr":"Endişeli , kaygılı"},{"en":"Addictive","tr":"Bağlılık yapıcı"},{"en":"Diminutive","tr":"Küçük"},{"en":"Repulsive","tr":"İğrenç"},{"en":"Pejorative","tr":"Aşağılayıcı"},{"en":"Deleterious","tr":"Zararlı , fena"},{"en":"Cessation","tr":"durma , kesilme"},{"en":"Concisely","tr":"Kısaca"},{"en":"Depict","tr":"Betimleme , tasvir etmek , anlatmak"},{"en":"Fabulous","tr":"Mucizevi , efsanevi"},{"en":"Akin","tr":"Benzer , yakın"},{"en":"Vigorous","tr":"Güçlü , kuvvetli"},{"en":"Disperse","tr":"Dağıtmak"},{"en":"Hang up","tr":"Telefonu kapamak"},{"en":"Hang on","tr":"Beklemek"},{"en":"Narrowly","tr":"Güç bela , zar zor"},{"en":"Eligible","tr":"Uygun bir şekilde"},{"en":"Intimacy","tr":"Samimilik , yakınlık"},{"en":"Extent to","tr":"Sıklık ,  süre ,  zaman"},{"en":"The extent to which/that","tr":"Ne ölçüde"},{"en":"Solidarity","tr":"Dayanışma birlik"},{"en":"Ultimately","tr":"Sonuçta , sonucunda , neticesinde"},{"en":"Rule of thumb","tr":"Göz kararı"},{"en":"Overarch","tr":"Kapsayıcı , ilişkili"},{"en":"Navy","tr":"Donanma"},{"en":"Override","tr":"Geçersiz kılma , bastırma"},{"en":"In pursuit of","tr":"Ardından , peşinden , takiben"},{"en":"Situate","tr":"Konumlandırmak , yerleştirmek"},{"en":"Grant","tr":"Give away, hibe etmek , bağışlamak"},{"en":"Prophecy","tr":"Kehanet"},{"en":"Proficient","tr":"Usta , mahir , becerikli"},{"en":"Volitional","tr":"İradeli"},{"en":"Compliance","tr":"Rivayet , uydurma"},{"en":"Recede","tr":"Geri çekilmek"},{"en":"Soak","tr":"Sırılsıklam olmak"},{"en":"Flood","tr":"Taşkın , sel , su baskını"},{"en":"Provision","tr":"Hüküm , koşul , karşılık"},{"en":"Prosperity","tr":"Refah"},{"en":"In awe of","tr":"Saygısıyla , hürmetiyle"},{"en":"Oversee","tr":"Gözetlemek , yönetmek"},{"en":"Newsworthy","tr":"Güncel , aktüel"},{"en":"Surgeon","tr":"Cerrah"},{"en":"Vast","tr":"Muazzam , büyük , geniş"},{"en":"Rigorous","tr":"Titiz"},{"en":"Rival","tr":"Rakip"},{"en":"Launch","tr":"Piyasaya sürmek , fırlatmak , denize indirmek"},{"en":"Renown","tr":"Şan , şöhret , ün"},{"en":"Endeavor","tr":"Çabalamak"},{"en":"Premise","tr":"Öncül , temel"},{"en":"Indelibly","tr":"Kalıcı bir şekilde"},{"en":".","tr":"."},{"en":"Banish","tr":"sürgün etmek , kovmak , aklından çıkarmak"},{"en":"Disparate","tr":"farklı , bambaşka , kıyaslanamaz"},{"en":"protract","tr":"süresini uzatmak"},{"en":"erode","tr":"aşındırmak"},{"en":"markedly","tr":"epeyce , büyük ölçüde"},{"en":"purportedly","tr":"söylendiğine göre , iddiaya göre , allegedly supposedly"},{"en":"seamlessly","tr":"sorunsuz bir şekilde , pürüzsüzce"},{"en":"lurk","tr":"pusu kurmak , pusuya yatmak , gizlenmek"},{"en":"estrange (from)","tr":"yabancılaştırmak , uzaklaştırmak , aralarını bozmak , soğutmak"},{"en":"influx","tr":"akın etmek, doluşmak , akış ,akın"},{"en":"respectively","tr":"sırasıyla , art arda"},{"en":"go in for","tr":"merak etmek , ilgi duymak , sınava girmek ,katılmak"},{"en":"conduct","tr":"yönetmek , idare etmek , davranış"},{"en":"hold back","tr":"geri tutmak , alıkoymak , tutmak , saklamak , çekinme"},{"en":"embark upon","tr":"benimsemek , e girişmek , başlamak"},{"en":"soar","tr":"artmak , uçmak , havada süzülmek"},{"en":"paramour","tr":"artmak ,sevgili , aşık , metres"},{"en":"escalate","tr":"artmak , yükselmek , tırmanmak , kızışmak ,"},{"en":"surge","tr":"artmak , akın (hayvan ve insanlar için) , dalgalanma , patlama ,insan seli"},{"en":"step up","tr":"artmak , yürümek , yükselmek , hızlandırmak"},{"en":"haphazard","tr":"gelişigüzel , plansız , rastgele"},{"en":"draw upon (on)","tr":"kullanmak , faydalanmak"},{"en":"perplex","tr":"kafasını karıştırmak ,  şaşırtmak , hayrete düşürmek"},{"en":"liability","tr":"yükümlülük , sorumluluk"},{"en":"emergence","tr":"ortaya çıkma"},{"en":"exceed","tr":"aşmak , geçmek"},{"en":"inferiority","tr":"aşağılık , bayağılık"},{"en":"evacuation","tr":"tahliye etme"},{"en":"appraisal","tr":"değerlendirme , ekspertiz"},{"en":"hold back","tr":"geri tutmak , alıkoymak , sollamak, tutmak , saklamak , çekinme"},{"en":"abiding","tr":"bitmez , tükenmez , kalıcı ,baki"},{"en":"graceful","tr":"zarif , nazik"},{"en":"revitalising","tr":"canlandırıcı"},{"en":"nurture","tr":"beslemek , geliştirmek ,terbiye"},{"en":"for-reaching","tr":"geniş kapsamlı"},{"en":"urge","tr":"zorlamak , ikna etmek , compell"},{"en":"do one's best","tr":"çabalamak"},{"en":"boom","tr":"artmak arttırmak"},{"en":"go up","tr":"artmak arttırmak"},{"en":"multiply","tr":"artmak arttırmak"},{"en":"solar flares","tr":"güneş patlamaları"},{"en":"side","tr":"yön , taraf ,"},{"en":"facet","tr":"yön , taraf ,  yüzey görünüş"},{"en":"aspect","tr":"yön , taraf ,"},{"en":"angle","tr":"yön , taraf , açı , bakış açısı"},{"en":"component","tr":"yön , taraf , bileşen , unsur, parça"},{"en":"approximately","tr":"yaklaşık olarak"},{"en":"nearly","tr":"yaklaşık olarak"},{"en":"thereabout","tr":"yaklaşık olarak"},{"en":"more or less","tr":"yaklaşık olarak"},{"en":"practically","tr":"yaklaşık olarak"},{"en":"some","tr":"yaklaşık olarak"},{"en":"subside","tr":"azalmak , azaltmak , sakinleşmek , geçmek (rüzgar , rüzgar) yatışmak"},{"en":"lower","tr":"azalmak azaltmak"},{"en":"injurious","tr":"tehlikeli zararlı"},{"en":"disapprove","tr":"reddetmek"},{"en":"spurn","tr":"reddetmek"},{"en":"refuse","tr":"reddetmek"},{"en":"milestone","tr":"dönüm noktası"},{"en":"turninpoint","tr":"dönüm noktası"},{"en":"landmark","tr":"dönüm noktası"},{"en":"breakthrough","tr":"dönüm noktası"},{"en":"watershed","tr":"dönüm noktası"},{"en":"crossroads","tr":"dönüm noktası"},{"en":"uncover-unearth","tr":"açıklamak , aydınlatmak , ortaya çıkmak"},{"en":"disclose","tr":"açıklamak , aydınlatmak , ortaya çıkmak , ifşa etmek"},{"en":"inadequate","tr":"yetersiz"},{"en":"insufficient","tr":"yetersiz"},{"en":"scarce","tr":"yetersiz ,az , kıt"},{"en":"meager","tr":"yetersiz"},{"en":"scant","tr":"yetersiz , kısıtlı , kıt, öz"},{"en":"limited","tr":"yetersiz , kısıtlı , sınırlı"},{"en":"sign","tr":"belirti , gösterge"},{"en":"mark","tr":"belirti , gösterge"},{"en":"manifestation","tr":"belirti , gösterge"},{"en":"signal","tr":"belirti , gösterge"},{"en":"staple","tr":"başlıca , zımba , zımbalamak"},{"en":"discharge","tr":"yaymak , salmak , tahliye , boşaltma , taburcu etmek"},{"en":"radiate","tr":"yaymak saçmak ışımak salmak"},{"en":"diffuse","tr":"yaymak salmak dağıtmak"},{"en":"exude","tr":"yaymak salmak akmak"},{"en":"ruin","tr":"mahvetmek bozmak yok etmek harabe yıkım"},{"en":"devastate","tr":"yok etmek"},{"en":"obliterate","tr":"yok etmek"},{"en":"exterminate","tr":"yok etmek"},{"en":"uproot","tr":"yok etmek uzaklaştırmak kökünden sökmek"},{"en":"ravage","tr":"yok etmek kasıp kavurmak mahvetmek harap etmek"},{"en":"decimate","tr":"yok etmek , önemli ölçüde azaltmak"},{"en":"workable","tr":"mümkün yapılabilir"},{"en":"doable","tr":"mümkün yapılabilir"},{"en":"evidance","tr":"kanıt"},{"en":"proof","tr":"kanıt"},{"en":"testimony","tr":"kanıt, tanıklık , şahadet , şahitlik , İFADE"},{"en":"in a nutshell","tr":"kısaca , özetle"},{"en":"in a few words","tr":"kısaca"},{"en":"in short","tr":"kısaca"},{"en":"adjourn","tr":"ertelemek"},{"en":"hold on/off","tr":"ertelemek"},{"en":"suspend","tr":"ertelemek , görevden uzaklaştırmak , ara vermek"},{"en":"procrastinate","tr":"ertelemek , retard , ağırdan almak , oyalamak"},{"en":"outperform","tr":"aşmak , geçmek , daha iyisini yapmak , üstün olmak"},{"en":"outdo","tr":"aşmak , geçmek , yenmek , üstün olmak"},{"en":"outstrip","tr":"aşmak , geçmek , geride bırakmak ,üstün çıkmak"},{"en":"outshine","tr":"aşmak , geçmek , gölgede bırakmak , daha çok parlamak"},{"en":"overtake","tr":"aşmak , geçmek , üstesinden gelmek"},{"en":"transcend","tr":"aşmak , geçmek , ötesine geçmek , sınırı geçmek"},{"en":"eclipse","tr":"aşmak , geçmek , güneş/ay tutulması , gözden düşmek , gölgede kalmak"},{"en":"excel at/in","tr":"aşmak , geçmek , sivrilmek , bir işte başarılı olmak"},{"en":"provisional","tr":"geçici , kısa süreli"},{"en":"transient","tr":"geçici , kısa süreli , evsiz , gezgin"},{"en":"transitory","tr":"geçici , kısa süreli"},{"en":"interim","tr":"geçici , kısa süreli , boşluk , ara , aralık"},{"en":"momentary","tr":"geçici , kısa süreli , anlık"},{"en":"ephemeral","tr":"geçici, kısa süreli"},{"en":"fleeting","tr":"geçici , kısa süreli"},{"en":".","tr":"."},{"en":"betray","tr":"ihanet etmek , aldatmak , kötüye kullanmak"},{"en":"permeate","tr":"penetrate , yayılmak , nüfuz etmek , içine işlemek"},{"en":"outage","tr":"kesinti"},{"en":"paralyze","tr":"felç etmek , durdurmak , etkisiz hale getirmek"},{"en":"indestructible","tr":"yok edilemez"},{"en":"inconvenience","tr":"laborious , zahmet , sıkıntı , sakınca , güçlük"},{"en":"overreliance","tr":"aşırı bağımlılık , bağlılık"},{"en":"preserve","tr":"korumak , muhafaza etmek"},{"en":"detrack from","tr":"gölge düşürmek, den uzaklaşmak"},{"en":"sight","tr":"görüntü , görünüş"},{"en":"whiff","tr":"esinti , koklamak , hafif koku"},{"en":"rekindle","tr":"yeniden alevlendirmek , canlandırmak"},{"en":"resurrect","tr":"yeniden canlandırmak , diriltmek , hayata döndürmek"},{"en":"uncharted","tr":"keşfedilmemiş"},{"en":"needle","tr":"iğne"},{"en":"digestion","tr":"sindirim"},{"en":"herald","tr":"müjdecisi olmak , habercisi olmak"},{"en":"revitalize","tr":"canlandırmak"},{"en":"branding","tr":"marka , markalaştırmak , markalaşma"},{"en":"nuance","tr":"ince fark , farkındalık , ince"},{"en":"elegance","tr":"zerafet"},{"en":"appetite","tr":"iştah"},{"en":"reinvigorate","tr":"canlandırmak , harekete geçirmek"},{"en":"draw up","tr":"ayarlamak yazmak taslak oluşturmak"},{"en":"get off","tr":"yırtmak , çıkmak , ayrılmak"},{"en":"municipality","tr":"belediye"},{"en":"cruciate","tr":"çarpı ile işaretlemek , çarpı atmak , haç işareti"},{"en":"dump","tr":"boşaltmak , dökmek (atık vs)"},{"en":"leak","tr":"sızmak , sızdırmak"},{"en":"spill","tr":"dökülmek , sızmak (kimyasal)"},{"en":"resolutely","tr":"kararlılıkla , tereddütsüz , azimle"},{"en":"impartially","tr":"tarafsız bir şekilde"},{"en":"precede","tr":"den önce gelmek"},{"en":"destabilize","tr":"istikrarsızlaştırmak"},{"en":"rotate","tr":"etrafında dönemk , dönmek , döndürmek"},{"en":"unparalled-unmatched","tr":"eşsiz benzersiz"},{"en":"lessen","tr":"azalmak hafifletmek düşmek"},{"en":"go down","tr":"azalmak azaltmak düşmek inmek geçmek sönmek batmak aşağıya inmek"},{"en":"slump","tr":"azalmak düşmek (ekonomik) çöküş çöküntü çökme"},{"en":"abate","tr":"azalmak düşmek hafiflemek dinmek (rüzgar) geçmek"},{"en":"wane","tr":"azalmak düşmek küçülmek solmak"},{"en":"taper off","tr":"azalmak düşmek sivrilmek incelmek gitgide azalmak"},{"en":"take place","tr":"come about , ensue , befall , occur , break out ,"},{"en":"unveil","tr":"ortaya çıkarmak , meydana çıkmak disclose , ensue , uncover , unearth , bring out , reveal"},{"en":"pivotal","tr":"önemli , outstanding , notable , substantial ,essential, vital, considerable, remarkable"},{"en":"propound","tr":"öne sürmek , iddia etmek"},{"en":"profound","tr":"büyük engin derin"},{"en":"put forth","tr":"öne sürmek , iddia etmek"},{"en":"labor","tr":"çabalamak"},{"en":"exert oneself-push oneself","tr":"çabalamak"},{"en":"mainstream","tr":"ana akış , yaygın"},{"en":"omnipresent","tr":"yaygın"},{"en":"evident","tr":"açık , bariz , aşikar , belli"},{"en":"obvious","tr":"açık bariz , besbelli , ortada"},{"en":"apparent","tr":"açık ,bariz, aşikar, görünür, belirgin"},{"en":"lucid","tr":"açık , bariz , aklı başında , anlaşılır , berrak"},{"en":"conspicuous","tr":"açık bariz göze çarpan , dikkat çekici , etkileyici"},{"en":"blatant","tr":"açık bariz apaçık"},{"en":"hallmark","tr":"özellik"},{"en":"trait","tr":"özellik"},{"en":"markedly","tr":"büyük ölçüde , önemli ölçüde"},{"en":"pave the way for-engender","tr":"yol açmak , neden olmak"},{"en":"association","tr":"kurum , birlik , ortaklık"},{"en":"immense","tr":"yoğun , engin büyük"},{"en":"immerse","tr":"kendi kaptırmak , daldırmak, batırmak"},{"en":"expenditure","tr":"masraf gider"},{"en":"abort","tr":"çoçuk düşürmek ,durdurmak , iptal etmek"},{"en":"bleak","tr":"kasvetli , kötü , iç karartıcı , umutsuz"},{"en":"untangle","tr":"çözmek , açmak (karışık bir şeyi ) , halletmek , düğüm çözmek"},{"en":"malformation","tr":"sakatlık"},{"en":"painstaking","tr":"özenli , itinalı , titiz , tidy"},{"en":"emanate from","tr":"den gelmek , çıkmak , den kaynaklanmak"},{"en":"joint","tr":"müşterek , ortak"},{"en":"irretrievable","tr":"geri alınamaz , telafi edilemez , karşılanamaz bir şekilde"},{"en":"confrontational","tr":"çatışmacı , agresif"},{"en":"lay down","tr":"kural koymak , yasa çıkarmak"},{"en":"tutorial","tr":"öğretici"},{"en":"inexorable","tr":"kaçınılmaz , merhametsiz , acımasız"},{"en":"incite","tr":"kışkırtmak"},{"en":"empower","tr":"yetki vermek , izin vermek , güçlendirmek"},{"en":"consensus","tr":"fikir birliği"},{"en":"swell","tr":"şişirmek , kabartmak"},{"en":"hook","tr":"düşkün , bağımlı"},{"en":"tailor","tr":"uydurmak , uygun hale getirmek , uyarlamak"},{"en":"friction","tr":"sürtünme"},{"en":"backtrack","tr":"vazgeçmek , aynı yere geri dönmek , sözünden dönmek , geri adım atmak"},{"en":"enlace","tr":"dolamak , dolaştırmak , sarmak"},{"en":"fetch","tr":"gidip getirmek"},{"en":"leniently","tr":"softly"},{"en":"coward","tr":"korkak"},{"en":"unwellcome","tr":"istenmeyen"},{"en":"companion","tr":"yoldaş , arkadaş , refakatçi"},{"en":"persistent","tr":"ısrarcı , sürekli , kalıcı , inatçı (pertinent ile karıştırma-konuyla ilgili demek-germance)"},{"en":"annoying","tr":"sinir bozucu , rahatsız edici , gıcık"},{"en":"single out","tr":"özel olarak ayırmak , seçmek"},{"en":"relentless","tr":"acımasız amansız"},{"en":"irresistible","tr":"karşı konulmaz , dayanılmaz , çok çekici"},{"en":"predetor","tr":"yırtıcı hayvan"},{"en":"be attracted to","tr":"etkilenmek , e kapılmak"},{"en":"volatile","tr":"uçucu"},{"en":"render","tr":"haline gelmek , kılmak , eritmek , vermek"},{"en":"beacon","tr":"işaret"},{"en":"scent","tr":"koku"},{"en":"scant","tr":"kısıtlı ,az , yetersiz"},{"en":"broadcast","tr":"yayın , yayın yapmak , duyurmak , haber etmek"},{"en":"insect","tr":"böcek"},{"en":"fungi","tr":"mantar"},{"en":"embellish","tr":"güzelleştirmek , abartmak"},{"en":"drought","tr":"kuraklık"},{"en":".","tr":"."},{"en":"calamity","tr":"felaket , musibet , afet , bela"},{"en":"havoc","tr":"felaket , tahribat , yıkım , zarar , hasar"},{"en":"misfortune","tr":"felaket , talihsizlik , aksilik , şanssızlık"},{"en":"cataclysm","tr":"felaket , afet , tufan , taşkın , isyan"},{"en":"in succession","tr":"art arda , verilen sıra ile , nöbetleşe"},{"en":"prohibit","tr":"önlemek , önüne geçmek , yasaklamak , men etmek , engel olmak"},{"en":"forestall","tr":"önüne geçmek , engellemek"},{"en":"fend off","tr":"önlemek , savuşturmak"},{"en":"stave off","tr":"önlemek , defetmek , atlatmak , savmak ,uzaklaştırmak"},{"en":"thwart","tr":"önlemek , engel olmak ,ket vurmak , engel"},{"en":"obviate","tr":"önlemek , gidermek , kaldırmak , karşılamamak"},{"en":"surmount","tr":"üstesinden gelmek , aşmak , halletmek"},{"en":"get the better of","tr":"üstesinden gelmek , sırtı yere gelmemek"},{"en":"get over","tr":"üstesinden gelmek , atlatmak , kurtulmak ,başa çıkmak"},{"en":"come through","tr":"üstesinden gelmek , atlatmak , başarmak , iyileşmek , kendinden beklenileni yapmak"},{"en":"impediment","tr":"engel"},{"en":"hurdle","tr":"engel , sorun"},{"en":"assent to","tr":"kabul etmek , onaylamak , razı olmak"},{"en":"go along with","tr":"kabul etmek , uymak , razı olmak , desteklemek"},{"en":"acquiesce","tr":"kabul etmek , ses çıkarmamak , katlanmak - put up with"},{"en":"elusive","tr":"belirsiz , anlaşılması zor"},{"en":"shrouded in mystery","tr":"belirsiz , bilinmeyen"},{"en":"equivocal","tr":"belirsiz , şüpheli , kaçamaklı"},{"en":"inclination","tr":"eğilim"},{"en":"relatively-comparably","tr":"nispeten , oranla"},{"en":"go over","tr":"incelemek , araştırmak , gözden geçirmek"},{"en":"inspect","tr":"incelemek , araştırmak , teftiş etmek , denetlemek"},{"en":"inquire into","tr":"incelemek , araştırmak ,"},{"en":"cutting-edge","tr":"delişmiş , ileri düzey , zayıflatmak , bıçak ağzı"},{"en":"state-of-the-art","tr":"gelişmiş , ileri düzey"},{"en":"hi-tech","tr":"gelişmiş , ileri düzey"},{"en":"avant-garde","tr":"gelişmiş , ileri düzey , yenilikçi"},{"en":"refined","tr":"arıtılmış , kibar , incelikli , gelişmiş , ileri düzey"},{"en":"knack","tr":"yetenek , beceri , hüner"},{"en":"flair","tr":"yetenek , beceri , hüner"},{"en":"acumen","tr":"yetenek , zeka , sevgi , feraset"},{"en":"originally","tr":"ilk başta , başlangıçta"},{"en":"at first","tr":"ilk başta , başlangıçta"},{"en":"to begin with","tr":"ilk başta , başlangıçta"},{"en":"at the early stages","tr":"ilk başta , başlangıçta"},{"en":"early on","tr":"ilk başta , başlangıçta"},{"en":"at the outset","tr":"ilk başta , başlangıçta"},{"en":"quit","tr":"vazgeçmek, bırakmak"},{"en":"stick to","tr":"e uymak , bağlı kalmak , sadık kalmak"},{"en":"desert","tr":"çöl , terketmek , yüz üstü bırakmak , ıssız"},{"en":"wholly","tr":"tamamen , tümüyle"},{"en":"altogether","tr":"tamamen , büsbütün"},{"en":"meddle in/with","tr":"müdahale etmek , karışmak ,araya girmek , burnunu sokmak"},{"en":"step in","tr":"müdahale etmek , araya girmek , devreye girmek"},{"en":"butt in","tr":"müdahale etmek , araya girmek ,,"},{"en":"indict for","tr":"suçlamak"},{"en":"incriminate","tr":"suçlamak"},{"en":"impeach","tr":"suçlamak , itham etmek , süphelenmek , ihbar etmek"},{"en":"reproach","tr":"sitem etmek , suçlamak , ayıplamak"},{"en":"enchanting","tr":"çekici , cazip"},{"en":"enticing","tr":"çekici , cazip"},{"en":"gorgeous","tr":"çekici cazip , harika , muhteşem , görkemli ,"},{"en":"stunning","tr":"çekici , cazip , hayret verici , çarpıcı"},{"en":"standpoint","tr":"görüş , inanç , fikir"},{"en":"creed","tr":"görüş , inanç , fikir , mezhep"},{"en":"step by step","tr":"gitgide , gittikçe"},{"en":"more and more","tr":"gitgide , gittikçe"},{"en":"bit by bit","tr":"gitgide , gittikçe"},{"en":"by degrees","tr":"gitgide , gittikçe"},{"en":"at regular pace","tr":"gitgide , gittikçe"},{"en":"ponder","tr":"deyyus , pezevenk ,  ahlaksız teklif , fuhuşa teşvik etmek"},{"en":"pander","tr":"derinlemesine düşünmek"},{"en":"deliberate on","tr":"derinlemesine düşünmek"},{"en":"ruminate on","tr":"derinlemesine düşünmek"},{"en":"muse over","tr":"derinlemesine düşünmek"},{"en":"acclimatize","tr":"uyum sağlamak"},{"en":"accord with","tr":"uyum sağlamak"},{"en":"attune","tr":"uyum sağlamak"},{"en":"stake","tr":"tehlike , risk , kazık , çıkar , bahis, hisse , pay"},{"en":"peril","tr":"tehlike , risk"},{"en":"heal","tr":"iyileşmek , atlatmak"},{"en":"bounce back","tr":"iyileşmek , atlatmak, toparlamak"},{"en":"weather","tr":"hava , iyileşmek , atlatmak"},{"en":"quarrel","tr":"tartışma , münakaşa"},{"en":"wrangle","tr":"tartışma çekişme tartışmak"},{"en":"instantly","tr":"hemen aniden derhal"},{"en":"promptly","tr":"hemen aniden derhal"},{"en":"at once","tr":"hemen aniden derhal"},{"en":"forthwith","tr":"hemen aniden derhal"},{"en":"right away","tr":"hemen aniden derhal"},{"en":"without delay","tr":"hemen aniden derhal vakit kaybetmeden, gecikmeden"},{"en":"belittle","tr":"küçümsemek"},{"en":"despise","tr":"küçümsemek"},{"en":"underrate","tr":"küçümsemek"},{"en":"undervalve","tr":"küçümsemek"},{"en":"scorn","tr":"küçümsemek"},{"en":"disparage","tr":"küçümsemek , kötülemek , alay etmek"},{"en":"contempt","tr":"küçümsemek ,saygısızlık , nefret"},{"en":"move forward","tr":"ilerlemek , geliştirmek"},{"en":"instangible","tr":"soyut"},{"en":"tenacity","tr":"azim , kararlılık"},{"en":"perseverance","tr":"kararlılık sebat azim tahammül"},{"en":"resolution","tr":"kararlılık azim"},{"en":"keep up with","tr":"ayak uydurmak"},{"en":"catch up with","tr":"ayak uydurmak"},{"en":"keep pace with","tr":"ayak uydurmak"},{"en":"stay abreast of","tr":"ayak uydurmak"},{"en":"dismantle","tr":"tahrip etmek , yıkmak , yiyip bitirmek"},{"en":"YENİ KISIMA GEÇİYORUM","tr":"YENİ KISIMA GEÇİYORUM"},{"en":"vulgar","tr":"kaba , boorish"},{"en":"seclusion","tr":"inziva"},{"en":"touch a sore point","tr":"bam teline basmak"},{"en":"fully fledget","tr":"tam teşekkürlü"},{"en":"grumple","tr":"homurdanmak"},{"en":"utter","tr":"söylemek"},{"en":"detainee","tr":"tutuklu"},{"en":"referee","tr":"hakem"},{"en":"trainee","tr":"kursiyer"},{"en":"retiree","tr":"emekli"},{"en":"trustee","tr":"kayyum"},{"en":"lightsome","tr":"neşeli"},{"en":"veracity","tr":"gerçeklik"},{"en":"velocity","tr":"sürat"},{"en":"ferocity","tr":"gaddarlık"},{"en":"felicity","tr":"mutluluk"},{"en":"feracious","tr":"verimli"},{"en":"ferocious","tr":"acımasız amansız"},{"en":"voracious","tr":"greed , açgözlü , doymak , bilmez , obur"},{"en":"highkey","tr":"açık bariz bir şekilde , bariz/belirgin şekilde, önemli ölçüde"},{"en":"handful","tr":"yaramaz"},{"en":"envoy","tr":"elçi , temsilci"},{"en":"in due course","tr":"zamanı geldiğinde"},{"en":"slam","tr":"sertçe eleştirmek , hızlı ve güçlü bir şekilde çarpmak"},{"en":"oblivious","tr":"kayıtsız , ilgisiz , dikkatsiz, habersiz , ihmalkar"},{"en":"engulf","tr":"etrafını sarmak , yutmak , derinden etkilemek"},{"en":"infallible","tr":"yanılmaz, güvenilir"},{"en":"to stay (ahead of the curve)","tr":"ilerde olmak , ortalamanın üstünde kalmak/olmak"},{"en":"vigorously","tr":"kuvvetli bir şekilde , şiddetle"},{"en":"rigorously","tr":"titizlikle, soğuk bir şekilde , katı bir şekilde , dakik bir biçimde , haşince"},{"en":"designate","tr":"atamak , belirlemek , tanımlamak , göstermek"},{"en":"denigrate","tr":"kötülemek , karalamak"},{"en":"onerously","tr":"zahmetli bir şekilde , sıkıntı vererek"},{"en":"ambivalently","tr":"kararsız bir şekilde"},{"en":"unsteadfastly","tr":"kararsız bir şekilde"},{"en":"mutably","tr":"kararsız bir şekilde"},{"en":"shillyshally","tr":"kararsız bir şekilde"},{"en":"fraudulency","tr":"sahtekarlık"},{"en":"juggling","tr":"sahtekarlık"},{"en":"counterfeiting","tr":"sahtekarlık"},{"en":"forgery","tr":"sahtekarlık"},{"en":"falsify","tr":"sahtekarlık"},{"en":"bountiful","tr":"bol bereketli"},{"en":"overflowing","tr":"bol bereketli"},{"en":"teeming with","tr":"bol bereketli , ile dolu olmak , kaynamak"},{"en":"copious","tr":"bol bereketli , pek , üretken , pek çok"},{"en":"profuse","tr":"bol , savurgan , müsrif , cömert , eli açık"},{"en":"boundless","tr":"bol bereketli , sınırsız , sonsuz"},{"en":"take possession of","tr":"devralmak , ele geçirmek (take on - capture )"},{"en":"foretell","tr":"tahmin etmek , ön görmek , kehanette bulunmak"},{"en":"augurate","tr":"tahmin etmek , ön görmek , kehanette bulunmak"},{"en":"foresee / forecast","tr":"tahmin etmek , ön görmek"},{"en":"anticipate","tr":"tahmin etmek , ön görmek , kehanette bulunmak , beklemek , ummak , sezmek"},{"en":"ailment","tr":"hastalık , rahatsızlık"},{"en":"malady","tr":"hastalık , rahatsızlık"},{"en":"affliction","tr":"hastalık , rahatsızlık"},{"en":"occasionally","tr":"arasıra bazen"},{"en":"at time","tr":"arasıra bazen"},{"en":"now and then","tr":"arasıra bazen"},{"en":"now and again","tr":"arasıra bazen"},{"en":"sporadic","tr":"arasıra bazen"},{"en":"shift into","tr":"e dönüşmek"},{"en":"evolve into","tr":"e dönüşmek"},{"en":"develop into","tr":"…. Haline gelmek , e dönüşmek"},{"en":"morph into","tr":"e dönüşmek"},{"en":"prosperous","tr":"zengin , varlıklı , refah"},{"en":"wealthy","tr":"varlıklı , zengin"},{"en":"affluent","tr":"varlıklı , zengin , refah içinde"},{"en":"well-off","tr":"varlıklı , zengin"},{"en":"opulent","tr":"varlıklı , zengin , gösterişli , bol , şaşalı"},{"en":"explosion","tr":"patlama"},{"en":"eruption","tr":"patlama"},{"en":"detonation","tr":"patlama"},{"en":"blast","tr":"patlama"},{"en":"blow up","tr":"patlama , patlatmak , havaya uçurmak , şişirmek"},{"en":"outburst","tr":"patlama"},{"en":"to some extent","tr":"kısmen"},{"en":"to a certain degree","tr":"kısmen"},{"en":"moderately","tr":"kısmen    ,     ılımlı olarak , ölçülü bir şekilde"},{"en":"rescind","tr":"iptal etmek , yürürlükten kaldırmak ,feshetmek"},{"en":"vigilant","tr":"uyanık , dikkatli , açıkgöz"},{"en":"watchful","tr":"uyanık , dikkatli  ,  tetikte"},{"en":"attentive","tr":"özenli , nazik , dikkatli"},{"en":"wary","tr":"temkinli , dikkatli , uyanık , tedbirli"},{"en":"magnitude","tr":"ehemmiyet , büyüklük , boyut"},{"en":"scope","tr":"kapsam , alan , konu"},{"en":"arguably","tr":"muhtemelen , tartışılır bir şekilde"},{"en":"presumeably","tr":"muhtemelen  , galiba , tahminen"},{"en":"tertile/arable/fruitfull/lush","tr":"verimli , tarıma uygun"},{"en":".","tr":"."},{"en":"culmination","tr":"sonuç , etki , doruk , zirve , son , bitiş"},{"en":"repercussion","tr":"sonuç , etki , yankı , yansıma"},{"en":"upshot","tr":"sonuç , etki , nihayet , ana fikir , netice"},{"en":"denote","tr":"ifade etmek , belirtmek , anlamına gelmek , göstermek"},{"en":"assure","tr":"garanti etmek , güvence vermek"},{"en":"ensure","tr":"garanti etmek , güvence vermek , emin olmak , temin etmek"},{"en":"guarante","tr":"garanti etmek , güvence vermek"},{"en":"warrant","tr":"garanti etmek , güvence vermek"},{"en":"secure","tr":"garanti etmek , güvence vermek"},{"en":"extravagant","tr":"aşırı müsrif savurgan ölçüsüz"},{"en":"exorbitant","tr":"aşırı çok fazla fahiş had safa"},{"en":"inordinate","tr":"aşırı haddinden fazla orantısız düzensiz"},{"en":"immoderate","tr":"ölçüsüz dengesiz çok fazla aşırı"},{"en":"bestow","tr":"teslim etmek vermek bahşetmek hediye etmek sunmak"},{"en":"attend","tr":"katılmak dahil olmak"},{"en":"be involved in","tr":"karışmak katılmak dahil olmak işin içine girmek"},{"en":"minor","tr":"önemsiz ufak küçük"},{"en":"trifling","tr":"önemsiz boş konuşma zaman öldürme"},{"en":"petty","tr":"küçük önemsiz ufak tefek dar görüşlü"},{"en":"tenuous","tr":"önemsiz temelsiz seyrek incecik"},{"en":"encounter","tr":"karşılaşmak rast gelmek"},{"en":"stumble on/upon","tr":"karşılaşmak rast gelmek , tökezlemek , sendelemek"},{"en":"evade","tr":"kaçınmak sakınmak kurtulmak geçiştirmek"},{"en":"stay away from","tr":"uzak durmak kaçınmak sakınmak"},{"en":"abstain from","tr":"kaçınmak sakınmak uzak durmak"},{"en":"at last","tr":"nihayetinde sonunda"},{"en":"in the long run","tr":"nihayetinde sonunda"},{"en":"in the upshot","tr":"nihayetinde sonunda"},{"en":"counterbalance","tr":"dengelemek telafi etmek"},{"en":"affordable","tr":"ekonomik ucuz uygun fiyatlı"},{"en":"cost - efective","tr":"uygun maliyetli ucuz"},{"en":"bargain","tr":"kelepir pazarlık ucuz uygun fiyatlı"},{"en":"low priced","tr":"düşük fiyatlı ucuz"},{"en":"famine","tr":"kıtlık sefalet açlık yokluk"},{"en":"poverty","tr":"sefalet fakirlik yokluk"},{"en":"shortage","tr":"kıtlık sıkıntı eksiklik yetersizlik"},{"en":"hunger","tr":"açlık özlem kıtlık"},{"en":"starvation","tr":"açlık"},{"en":"famishment","tr":"açlık kıtlık"},{"en":"dearth","tr":"kıtlık açlık yokluk"},{"en":"scarcity","tr":"kıtlık azlık yetersizlik"},{"en":"infavorably","tr":"adversely negatively badly"},{"en":"veil","tr":"peçe duvak örtü (gizlenmek)"},{"en":"obscure","tr":"belirsizlik gizlemek karartmak belirsizleştirmek"},{"en":"mask","tr":"maske örtü gizlemek"},{"en":"obfuscate","tr":"gizlemek örtmek şaşırtmak kafasını karıştırmak"},{"en":"delicate","tr":"hassas kırılgan"},{"en":"sensitive","tr":"hassas kırılgan"},{"en":"brittle","tr":"hassas kırılgan"},{"en":"episode","tr":"event olay vaka bölüm fıkra"},{"en":"eternally","tr":"sürekli , kalıcı bir şekilde"},{"en":"everlastingly","tr":"sürekli , kalıcı bir şekilde"},{"en":"enduringly","tr":"sürekli , kalıcı bir şekilde"},{"en":"perennially","tr":"sürekli , kalıcı bir şekilde"},{"en":"perpetually","tr":"sürekli , kalıcı bir şekilde"},{"en":"invariably","tr":"sürekli , kalıcı bir şekilde"},{"en":"spring from","tr":"emanate from originate from emerge from"},{"en":"initiative","tr":"girişim  teşebbüs"},{"en":"enterprise","tr":"girişim  teşebbüs"},{"en":"attempt","tr":"girişim  teşebbüs"},{"en":"venture","tr":"girişim  teşebbüs"},{"en":"vice verse","tr":"aksine tersine"},{"en":"inversely","tr":"aksine tersine"},{"en":"conversely","tr":"aksine tersine"},{"en":"shoulder","tr":"take over omuzlamak üstlenmek"},{"en":"brainchild","tr":"buluş parlak fikir yenilik zeka küpü"},{"en":"coinage","tr":"novelty yenilik buluş kelime yapmak"},{"en":"ascertain","tr":"aslını öğrenmek saptamak tespit etmek"},{"en":"spur on","tr":"teşvik etmek cesaretlendirmek dürtmek"},{"en":"fundamental","tr":"vazgeçilmez gerekli , asli , temel , esas , önemli"},{"en":"comperative","tr":"vazgeçilmez gerekli"},{"en":"crude","tr":"ilkel ham basit nezaketsiz"},{"en":"primal","tr":"ilkel ilk temel"},{"en":"strike","tr":"(çarpmak vurmak)    grev"},{"en":"walkout","tr":"(terketme çekilme işi bırakma)     grev"},{"en":"dubious","tr":"şüpheli şüpheci doubtful"},{"en":"deceitful","tr":"aldatıcı yanıltıcı düzenbaz"},{"en":"fallacious","tr":"aldatıcı yanıltıcı"},{"en":"delusive","tr":"aldatıcı yanıltıcı"},{"en":"tricky","tr":"aldatıcı yanıltıcı düzenbaz hileci"},{"en":"take after","tr":"benzemek çekmek (genetik)"},{"en":"look like","tr":"benzemek gibi görünmek"},{"en":"mirror","tr":"ayna yansımak benzemek (biraz zorlama olmuş)"},{"en":"be akin to","tr":"benzemek"},{"en":"be analogous to","tr":"benzemek"},{"en":"elude","tr":"sıyrılmak paçasını kurtarmak koşmak kurtulmak"},{"en":"evade","tr":"kurtulmak"},{"en":"bolt","tr":"cıvata sürgülemek kaçmak fırlamak"},{"en":"abscond","tr":"firar etmek sıvışmak kaçmak"},{"en":"forgone","tr":"tahmin edilebilir , sonu belli olan"},{"en":"convenant","tr":"pact treaty anlaşma accord"},{"en":".","tr":"."},{"en":"briskly","tr":"hızlıca istenilen hızda çabuk hareketli bir şekilde"},{"en":"expeditiously","tr":"hızlıca süratle"},{"en":"hastily","tr":"acele hızlı hızlıca acilen"},{"en":"promptly","tr":"acilen acil hızlıca"},{"en":"at once","tr":"hemen derhal"},{"en":"in no time","tr":"hızlıca çabucak hemen vakit kaybetmeden"},{"en":"pass on","tr":"hand down pass down"},{"en":"forgood","tr":"sonsuz , temelli olarak , geri dönmemek üzere"},{"en":"everlasting","tr":"sonsuz ebedi"},{"en":"assortment","tr":"çeşitlilik çeşit karışım karışım ayırma"},{"en":"array","tr":"çeşitlilik yelpaze düzen sıra sıralanış"},{"en":"spectrum","tr":"çeşitlilik"},{"en":"sporadically","tr":"nadiren gelişigüzel"},{"en":"once in a while","tr":"nadiren"},{"en":"hardly ever","tr":"neredeyse hiç , nadiren"},{"en":"at rare intervals","tr":"düzenli aralıklı , nadiren"},{"en":"hinge on","tr":"e bağlı olmak güvenmek"},{"en":"mammoth","tr":"tremendous huge massive colossal"},{"en":"recession","tr":"durgunluk gerileme(piyasa ekonomik)"},{"en":"downturn","tr":"durgunluk gerileme gerileme dönemi alçalma"},{"en":"slump","tr":"düşüş (fiyat) ekonomik kriz çöküş çökme gerileme"},{"en":"slowdown","tr":"yavaşlama durgunluk grev gerileme"},{"en":"decline","tr":"düşüş gerileme geri çevirmek reddetmek azalmak"},{"en":"on purpose","tr":"kasten bilinçli olarak"},{"en":"willfully","tr":"kasten bilinçli olarak"},{"en":"purposely","tr":"kasten bilinçli olarak"},{"en":"fulfill","tr":"yerine getirmek , gerçekleştirmek , hayata geçirmek"},{"en":"put into (practice)","tr":"yerine getirmek , gerçekleştirmek , hayata geçirmek (çevirmek , tercüme etmek , p yatırmak)"},{"en":"exchange","tr":"mübadele takas takas etmek değiş tokuş yapmak"},{"en":"interchange","tr":"değiştirmek , takas etmek , takas"},{"en":"barter","tr":"takas , takas etmek"},{"en":"swap","tr":"takas , takas etmek"},{"en":"trade off","tr":"takas etmek"},{"en":"tacit","tr":"imalı dolaylı örtük"},{"en":"fidelity","tr":"sadakat , adama , bağlılık , vefa"},{"en":"confidentially","tr":"el altından , gizlice"},{"en":"covertly","tr":"el altından , gizlice"},{"en":"furtively","tr":"el altından , gizlice , sinsice , çaktırmadan"},{"en":"stealthily","tr":"el altından , gizlice"},{"en":"by stealth","tr":"el altından , gizlice"},{"en":"clandestinely","tr":"el altından , gizlice"},{"en":"surreptitiously","tr":"el altından , gizlice"},{"en":"rigid","tr":"sert sabit kaskatı sıkı"},{"en":"tough","tr":"zorlu çetin zor sert sağlam"},{"en":"stiff","tr":"katı sert çetin ceset kazıklamak"},{"en":"firm","tr":"katı sıkı sert"},{"en":"solid","tr":"katı (kimyada geçer çok ) sert masif sağlam"},{"en":"robust","tr":"güçlü sağlam dayanıklı"},{"en":"harsh","tr":"(mecazi) haşin sert"},{"en":"strict","tr":"(kural disiplin) sert katı"},{"en":"stringent","tr":"katı sıkı sert"},{"en":"inflexible","tr":"esnek olmayan eğilmez sert katı"},{"en":"condone","tr":"affetmek bağışlamak hoşgörmek göz yummak"},{"en":"absolve","tr":"affetmek kurtarmak aklamak bağışlamak"},{"en":"surplus","tr":"gereksiz fazla"},{"en":"shallowly","tr":"yüzeysel bir şekilde , üstünkörü"},{"en":"cursorily","tr":"gelişi güzel bir şekilde , aceleyle , haphazardly"},{"en":"flaunt","tr":"show off , gösteriş yapmak , hava atmak"},{"en":"brag","tr":"övünmek boast böbürlenmek"},{"en":"dilate","tr":"broaden extend expand enlarge widen"},{"en":"noted for","tr":"ile ünlü"},{"en":"illustrious","tr":"ile ünlü , şöhret şan meşhur"},{"en":"distinguished","tr":"seçkin kibar tanınmış ünlü"},{"en":"eminent","tr":"ünlü seçkin yüce tanınmış"},{"en":"fraud","tr":"sahtekarlık dolandırıcılık hile yozlaşma bozulma"},{"en":"decay","tr":"çürümek çürük bozulma bozulmak yozlaşmak"},{"en":"miserably","tr":"çaresizce sefalet içinde bitkin bir şekilde umutsuzca"},{"en":"feature","tr":"özellik unsur öne çıkarmak içermek kapsamak"},{"en":"compatible (with)","tr":"uyumlu tutarlı"},{"en":"congruous","tr":"uyumlu münasip uygun yerinde ahenk"},{"en":"concordant","tr":"uyumlu uygun"},{"en":"contagion","tr":"plague pandemic outbreak sirayet bulaşma yayılma"},{"en":"uniformly","tr":"evenly equally equivolently eşit bir şekilde"},{"en":"precipitate (yağıştan hatırla)","tr":"çökelme,telaş,acelecilik,sonuca ulaşmak,yatıştırmak,neden olmak (tetiklemek), hızlandırmak"},{"en":"spark","tr":"kıvılcım, tetiklemek"},{"en":"ignite","tr":"ateşlemek, tutuşmak, tetiklemek, yakmak"},{"en":"instigate","tr":"başlatmak, kışkırtmak, teşvik etmek, tetiklemek"},{"en":"catalyze","tr":"kolaylaştırmak, harekete geçirmek tetiklemek"},{"en":"provoke","tr":"kışkırtmak, neden olmak, tetiklemek, tahrik etmek"},{"en":"set off","tr":"trigger , patlatmak, yoluna koymak"},{"en":"stir up","tr":"kışkırtmak, teşvik etmek, sebep olmak, tetiklemek"},{"en":"immutable","tr":"irrevocable , irreversible, sabit , değişmez"},{"en":"flaw","tr":"kusur hata eksiklik"},{"en":"imperfection","tr":"ayıp kusur noksan"},{"en":"blemish","tr":"leke, kusur, lekelemek, şaibe, hata, damga, özür"},{"en":"glitch","tr":"hata aksaklık kusur arıza tıkanıklık"},{"en":"brutally","tr":"acımasızca vahşice, hayvanca"},{"en":"relentlessly","tr":"bıkıp usanmadan acımasızca inatla yılmadan"},{"en":"ruthlessly","tr":"insafsızca acımasızca merhametsizce zalimce"},{"en":"pitilessly","tr":"acımasızca merhametsizce gözünü kırpmadan"},{"en":"mercilessly","tr":"acımasızca merhametsizce acımadan"},{"en":"savagely","tr":"acımasızca vahşice kıran kırana"},{"en":"cruelly","tr":"zalimce acımasızca acımadan gaddarca"},{"en":"ferociously","tr":"yırtıcı bir şekilde acımasızca şiddetli bir şekilde yoğun bir şekilde"},{"en":"viciously","tr":"alçakca kötü amaçla haince acımasızca"},{"en":"fiercely","tr":"şiddetle, sinirli bir şekilde , sert bir şekilde , acımasızca"},{"en":"remorselessly","tr":"vicdansızca acımasızca merhametsizce"},{"en":".","tr":"."},{"en":"revere","tr":"saygı göstermek , tapmak , kutsamak , hayranlık duymak"},{"en":"venerate","tr":"saygı göstermek , hürmet etmek , hayranlık duymak"},{"en":"esteem","tr":"saygı duymak , saygı , hürmet , itibar , hayranlık duymak"},{"en":"idolize","tr":"tapmak , ilahlaştırmak , idolleştirmek"},{"en":"durable","tr":"dayanıklı , sağlam , kalıcı"},{"en":"sturdy","tr":"dayanıklı , sağlam , güçlü"},{"en":"robust","tr":"güçlü , dayanıklı , sağlam"},{"en":"resilient","tr":"dirençli , dayanıklı , sağlam , elastikli"},{"en":"stout","tr":"cesur , şişman , yiğit , sağlam , güçlü"},{"en":"discrepancy","tr":"çelişki , tutarsızlık"},{"en":"contradiction","tr":"çelişki , tutarsızlık"},{"en":"inconsistency","tr":"çelişki , tutarsızlık"},{"en":"divergence","tr":"çelişki , tutarsızlık , farklılık , eşitsizlik"},{"en":"disparity","tr":"çelişki , tutarsızlık , farklılık , eşitsizlik"},{"en":"thoroughly","tr":"ayrıntılı bir şekilde , derinlemesine"},{"en":"exhaustively","tr":"ayrıntılı bir şekilde , etraflıca , derinlemesine"},{"en":"comprehensively","tr":"kapsamlı bir şekilde , ayrıntılı bir şekilde"},{"en":"extensively","tr":"ayrıntılı bir şekilde , kapsamlı bir şekilde"},{"en":"minutely","tr":"özenli bir şekilde , çok dikkatli bir şekilde , ayrıntılı bir şekilde"},{"en":"insist on","tr":"ısrar etmek , diretmek"},{"en":"persist on","tr":"ısrar etmek , diretmek"},{"en":"stand out for","tr":"ısrar etmek , diretmek"},{"en":"hold out","tr":"ısrar etmek , diretmek"},{"en":"urge","tr":"ısrar etmek , diretmek"},{"en":"compell","tr":"ısrar etmek , diretmek"},{"en":"ordinary","tr":"sıradan"},{"en":"commonplace","tr":"sıradan"},{"en":"mundane","tr":"günlük , sıradan"},{"en":"nondescript","tr":"sıradan"},{"en":"motivation","tr":"itici güç , teşvik"},{"en":"stimulus","tr":"itici güç , teşvik"},{"en":"driving force","tr":"itici güç , teşvik"},{"en":"impetus","tr":"itici güç , teşvik"},{"en":"propulsion","tr":"itici güç , teşvik"},{"en":"catalyst","tr":"itici güç , teşvik"},{"en":"spur","tr":"itici güç , teşvik"},{"en":"harbour","tr":"barındırmak , liman , yataklık etmek , içermek"},{"en":"accomodate","tr":"kalacak yer vermek , barındırmak"},{"en":"house","tr":"ev , hane , konut , barındırmak"},{"en":"shelter","tr":"barınak , sığınak , sığınma , korunma , barındırmak"},{"en":"lodge","tr":"kulübe , loca , takılıp kalmak , misafir etmek"},{"en":"host","tr":"ev sahibi , ağırlamak , sunucu , ağırlamak , barındırmak"},{"en":"mutually","tr":"karışılıklı olarak"},{"en":"reciprocally","tr":"karışılıklı olarak"},{"en":"bilaterally","tr":"karışılıklı olarak"},{"en":"jointly","tr":"karışılıklı olarak"},{"en":"conjointly","tr":"karışılıklı olarak"},{"en":"be liable to","tr":"eğiliminde olmak , yatkın olmak"},{"en":"have a tendency to","tr":"eğiliminde olmak , yatkın olmak"},{"en":"be apt to","tr":"eğiliminde olmak , yatkın olmak"},{"en":"be predisposed to","tr":"eğiliminde olmak , yatkın olmak"},{"en":"be prone to","tr":"eğiliminde olmak , yatkın olmak"},{"en":"be inclined to","tr":"eğiliminde olmak , yatkın olmak"},{"en":"tend to","tr":"eğiliminde olmak , yatkın olmak"},{"en":"profitable","tr":"karlı , kazançlı"},{"en":"lucrative","tr":"karlı , kazançlı"},{"en":"rewarding","tr":"karlı , kazançlı"},{"en":"gainful","tr":"karlı , kazançlı"},{"en":"remunerative","tr":"karlı , kazançlı"},{"en":"justify","tr":"haklı çıkarmak , aklamak"},{"en":"vindicate","tr":"haklı çıkarmak , aklamak"},{"en":"legitimate","tr":"haklı çıkarmak , aklamak (\tmeşrulaştırmak)"},{"en":"exonerate","tr":"haklı çıkarmak , aklamak"},{"en":"prove somebody right","tr":"haklı çıkarmak , aklamak"},{"en":"lack","tr":"den yoksun olmak"},{"en":"be devoid of","tr":"den yoksun olmak"},{"en":"be deprived of","tr":"den yoksun olmak"},{"en":"be short of","tr":"den yoksun olmak"},{"en":"be deficient in","tr":"den yoksun olmak"},{"en":"be bereft of","tr":"den yoksun olmak"},{"en":"fall short of","tr":"den yoksun olmak"},{"en":"launch","tr":"fırlatmak (uzay aracı vs)"},{"en":"cast off","tr":"eskiler , çıkarıp atmak , reddetmek , kurtulmak , ilişkisini kesmek"},{"en":"propel","tr":"sevk etmek , itmek , yürütmek , ileri sürmek"},{"en":"send off","tr":"göndermek , postalamak , yolcu etmek"},{"en":"discharge","tr":"tahliye , taburcu olma , boşaltma"},{"en":"eject","tr":"çıkarmak , fırlatmak , işten kovmak , püskürtmek , fışkırtmak"},{"en":".","tr":"."},{"en":"occupy","tr":"işgal etmek"},{"en":"invade","tr":"işgal etmek"},{"en":"overrun","tr":"işgal etmek"},{"en":"induce","tr":"neden olmak , ikna etmek"},{"en":"reason with","tr":"neden olmak , ikna etmek"},{"en":"vary","tr":"farklılık göstermek"},{"en":"alternate","tr":"farklılık göstermek"},{"en":"range from to","tr":"farklılık göstermek"},{"en":"oscillate from","tr":"farklılık göstermek"},{"en":"fluctuate","tr":"(inip çıkmak ) , farklılık göstermek"},{"en":"perceive","tr":"algılamak , sezmek"},{"en":"sense","tr":"algılamak , sezmek"},{"en":"intuit","tr":"algılamak , sezmek"},{"en":"pretend","tr":"mış gibi yapmak , yaparmış gibi yapmak"},{"en":"feign","tr":"mış gibi yapmak , yaparmış gibi yapmak"},{"en":"make as if","tr":"mış gibi yapmak , yaparmış gibi yapmak"},{"en":"replace","tr":"yerine geçmek , yerini almak"},{"en":"supplant","tr":"yerine geçmek , yerini almak"},{"en":"supersede","tr":"yerine geçmek , yerini almak"},{"en":"substitute for","tr":"yerine geçmek , yerini almak"},{"en":"succeed (başarılı olmak , başarmak)","tr":"yerine geçmek , yerini almak"},{"en":"take over ( devralmak , üstlenmek)","tr":"yerine geçmek , yerini almak"},{"en":"moderate","tr":"hafifletmek , dindirmek , azaltmak , yumuşatmak"},{"en":"appease","tr":"hafifletmek , dindirmek , azaltmak , yumuşatmak"},{"en":"reveal","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"disclose","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"divulge","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"uncover","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"unveil","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"unravel ( çözmek)","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"unfold (gelişmek , açmak)","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"uncloak","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"unmask (maskesini düşürmek)","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"expose","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"bring to light","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"make public","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"elicit","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"ferret out","tr":"ortaya çıkarmak , meydana gelmek"},{"en":"recommend","tr":"tavsiye etmek"},{"en":"counsel","tr":"tavsiye etmek"},{"en":"prescribe","tr":"tavsiye etmek"},{"en":"exhort (şiddetle tavsiye etmek)","tr":"tavsiye etmek , öğüt vermek , uyarmak , teşvik etmek"},{"en":"repair","tr":"onarmak , yenilemek"},{"en":"restore","tr":"onarmak , yenilemek"},{"en":"fix (düzeltmek)","tr":"onarmak , yenilemek"},{"en":"mend","tr":"onarmak , yenilemek"},{"en":"overhaul ( gözden geçirmek)","tr":"onarmak , yenilemek"},{"en":"patch (leke, yama , bahçe)","tr":"onarmak , yenilemek"},{"en":"revamp","tr":"onarmak , yenilemek"},{"en":"renovate","tr":"onarmak , yenilemek"},{"en":"reiterate","tr":"tekrar etmek , yinelemek"},{"en":"iterate","tr":"tekrar etmek , yinelemek"},{"en":"echo (yankı , yankılanmak)","tr":"tekrar etmek , yinelemek"},{"en":"stand out","tr":"göze çarpmak , dikkat çekmek"},{"en":"attrack attention","tr":"göze çarpmak , dikkat çekmek"},{"en":"leap out ( dışarı fırlamak)","tr":"göze çarpmak , dikkat çekmek"},{"en":"catch the eye","tr":"göze çarpmak , dikkat çekmek"},{"en":"make a impression (izlenim bırakmak)","tr":"göze çarpmak , dikkat çekmek"},{"en":"restrict","tr":"kısıtlamak , sınırlandırmak"},{"en":"restrain ( dizginlemek )","tr":"kısıtlamak , sınırlandırmak"},{"en":"limit","tr":"kısıtlamak , sınırlandırmak"},{"en":"constrain (engellemek )","tr":"kısıtlamak , sınırlandırmak"},{"en":"confine (hapsetmek)","tr":"kısıtlamak , sınırlandırmak"},{"en":"curb","tr":"kısıtlamak , sınırlandırmak"},{"en":"trammel","tr":"kısıtlamak , sınırlandırmak"},{"en":"circumscribe (çevrlmk,çerçevelemek)","tr":"kısıtlamak , sınırlandırmak"},{"en":"resign","tr":"istifa etmek"},{"en":"step down","tr":"istifa etmek"},{"en":"quit","tr":"istifa etmek"},{"en":"abdicate","tr":"istifa etmek"},{"en":"rule","tr":"hüküm sürmek"},{"en":"reign (over)","tr":"hüküm sürmek"},{"en":"dominate","tr":"hüküm sürmek"},{"en":"govern","tr":"hüküm sürmek"},{"en":"prevail (üstün gelmek)","tr":"hüküm sürmek"},{"en":"separate into","tr":"e ayırmak , bölmek"},{"en":"divide into","tr":"e ayırmak , bölmek"},{"en":"split into","tr":"e ayırmak , bölmek"},{"en":"breakdown into","tr":"e ayırmak , bölmek"},{"en":"categorize into","tr":"e ayırmak , bölmek"},{"en":"group into","tr":"e ayırmak , bölmek"},{"en":"sort into","tr":"e ayırmak , bölmek"},{"en":"classify into","tr":"e ayırmak , bölmek"},{"en":"impair","tr":"bozmak , zarar vermek"},{"en":"disrupt","tr":"bozmak , zarar vermek"},{"en":"harm","tr":"bozmak , zarar vermek"},{"en":"compromise (taviz , anlaşmak)","tr":"bozmak , zarar vermek"},{"en":"degrade (düşmek , azalmak)","tr":"bozmak , zarar vermek"},{"en":"tamper with","tr":"bozmak , zarar vermek ,kurcalamak,"},{"en":"spoil","tr":"bozmak , zarar vermek"},{"en":"suffer from","tr":"den müzdarip olmak , acı çekmek"},{"en":"be afflicted with","tr":"den müzdarip olmak , acı çekmek"},{"en":"be plague with","tr":"den müzdarip olmak , acı çekmek"},{"en":"be burdened with","tr":"den müzdarip olmak , acı çekmek"},{"en":"perish with","tr":"den müzdarip olmak , acı çekmek"},{"en":"treat (davranmak,muamele etmek)","tr":"tedavi etmek"},{"en":"heal","tr":"tedavi etmek"},{"en":"cure","tr":"tedavi etmek"},{"en":"medicate","tr":"tedavi etmek"},{"en":".","tr":"."},{"en":"force","tr":"zorlamak"},{"en":"compel","tr":"zorlamak"},{"en":"impel","tr":"zorlamak (hayata geçirmek)"},{"en":"obligate","tr":"zorlamak"},{"en":"coerce","tr":"zorlamak"},{"en":"enforce","tr":"zorlamak"},{"en":"urge","tr":"zorlamak"},{"en":"withdraw","tr":"geri çekilmek"},{"en":"retreat","tr":"geri çekilmek"},{"en":"pull back","tr":"geri çekilmek"},{"en":"pull out","tr":"geri çekilmek ( çıkarmak , ayrılmak , silah çekmek)"},{"en":"recede","tr":"geri çekilmek"},{"en":"compile","tr":"toplamak , derlemek , bir araya getirmek"},{"en":"amass","tr":"toplamak , derlemek , bir araya getirmek"},{"en":"gather","tr":"toplamak , derlemek , bir araya getirmek"},{"en":"assemble","tr":"toplamak , derlemek , bir araya getirmek"},{"en":"aggregate","tr":"toplamak , derlemek , bir araya getirmek"},{"en":"bring together","tr":"toplamak , derlemek , bir araya getirmek"},{"en":"put together","tr":"toplamak , derlemek , bir araya getirmek (kurmak , oluşturmak )"},{"en":"glean","tr":"toplamak , derlemek , bir araya getirmek"},{"en":"hoard (istif , istiflemek)","tr":"biriktirmek"},{"en":"set aside","tr":"biriktirmek (bir kenara koymak , ayırmak )"},{"en":"pile up","tr":"biriktirmek"},{"en":"accrue (artmak)","tr":"biriktirmek (artmak)"},{"en":"store/storepile","tr":"biriktirmek"},{"en":"assist","tr":"yardım etmek"},{"en":"aid","tr":"yardım etmek"},{"en":"give / lend a hand to","tr":"yardım etmek"},{"en":"prosper (başarılı olmak)","tr":"büyümek zenginleşmek"},{"en":"thrieve","tr":"büyümek zenginleşmek"},{"en":"flourish","tr":"büyümek zenginleşmek"},{"en":"grow","tr":"büyümek zenginleşmek"},{"en":"bloom","tr":"büyümek zenginleşmek (çiçek , çiçek açma)"},{"en":"blossom","tr":"büyümek zenginleşmek , (çiçek , çiçek açma)"},{"en":"burgeon","tr":"büyümek zenginleşmek , (filiz , filizlenme)"},{"en":"sprout","tr":"büyümek zenginleşmek ,  (filiz , filizlenme)"},{"en":"break a new ground","tr":"çığır açmak"},{"en":"usher in","tr":"çığır açmak"},{"en":"trail a blaze","tr":"çığır açmak"},{"en":"mark on era","tr":"çığır açmak"},{"en":"lead the way","tr":"çığır açmak , (yol göstermek)"},{"en":"spearhead","tr":"çığır açmak"},{"en":"pioneer","tr":"çığır açmak"},{"en":"abuse","tr":"istismar etmek , kötüye kullanmak"},{"en":"misuse","tr":"istismar etmek , kötüye kullanmak"},{"en":"maltreat","tr":"istismar etmek , kötüye kullanmak"},{"en":"mistreat","tr":"istismar etmek , kötüye kullanmak"},{"en":"illtreat","tr":"istismar etmek , kötüye kullanmak"},{"en":"exploit","tr":"istismar etmek , kötüye kullanmak"},{"en":"oppress","tr":"zulmetmek , baskı yapmak , işkence etmek"},{"en":"persecute","tr":"zulmetmek , baskı yapmak , işkence etmek"},{"en":"tyrannise","tr":"zulmetmek , baskı yapmak , işkence etmek"},{"en":"victimize","tr":"zulmetmek , baskı yapmak , işkence etmek"},{"en":"torture","tr":"zulmetmek , baskı yapmak , işkence etmek , (eziyet , işkence )"},{"en":"subjugate","tr":"zulmetmek , baskı yapmak , işkence etmek (boyun eğdirmek , yenmek )"},{"en":"deter","tr":"cesaretini kırmak , caydırmak"},{"en":"dissuade","tr":"cesaretini kırmak , caydırmak"},{"en":"demoralise","tr":"cesaretini kırmak , caydırmak"},{"en":"daunt","tr":"cesaretini kırmak , caydırmak"},{"en":"dishearten","tr":"cesaretini kırmak , caydırmak ( umudunu kaybetmek )"},{"en":"evoke","tr":"duygu uyandırmak ( anımsatmak , hatırlatmak  )"},{"en":"arouse","tr":"duygu uyandırmak (harekete geçirmek )"},{"en":"stir","tr":"duygu uyandırmak (karıştırmak kaşıkla gibi vs ,,, heycan )"},{"en":"stimulate","tr":"duygu uyandırmak , (uyarmak)"},{"en":"prompt","tr":"harekete geçirmek , e yöneltmek , (teşvik etmek , acele etmek )"},{"en":"drive","tr":"harekete geçirmek , e yöneltmek"},{"en":"mobilize","tr":"harekete geçirmek , e yöneltmek"},{"en":"stimulate","tr":"harekete geçirmek , e yöneltmek"},{"en":"stir","tr":"harekete geçirmek , e yöneltmek"},{"en":"set in motion","tr":"harekete geçirmek , e yöneltmek"},{"en":"galvanize","tr":"harekete geçirmek , e yöneltmek"},{"en":"thrust on","tr":"harekete geçirmek , e yöneltmek"},{"en":"rule out","tr":"göz ardı etmek ( dışında tutmak , hariç bırakmak )"},{"en":"dismiss","tr":"göz ardı etmek (kovmak azletmek )"},{"en":"disregard","tr":"göz ardı etmek (saygısızlık , hiçe saymak )"},{"en":"bypass","tr":"göz ardı etmek  (atlatmak , çevre yolu , uğramadan geçmek , atlamak , uğramadan geçmek)"},{"en":"leave out","tr":"dahil etmemek , çıkarmak"},{"en":"count out","tr":"dahil etmemek , çıkarmak"},{"en":"exclude","tr":"dahil etmemek , çıkarmak"},{"en":"omit","tr":"dahil etmemek , çıkarmak"},{"en":"consume","tr":"tüketmek"},{"en":"exhaust","tr":"tüketmek"},{"en":"drain","tr":"tüketmek ( tahliye etmek ) (dranaj)"},{"en":"use up","tr":"tüketmek"},{"en":"devour","tr":"tüketmek ( bir çırpıda bitirmek )"},{"en":"tap out","tr":"tüketmek (ritim tutmak , hafif vuruşlarla içinden çıkarmak )"},{"en":"erode","tr":"yıpranmak aşınmak yıprandırmak aşındırmak"},{"en":"wear away (at)","tr":"yıpranmak aşınmak yıprandırmak aşındırmak (tüketmek )"},{"en":"corrode","tr":"yıpranmak aşınmak yıprandırmak aşındırmak"},{"en":"abrade","tr":"yıpranmak aşınmak yıprandırmak aşındırmak"},{"en":"invent","tr":"icat etmek , bulmak ( fikir , araç)"},{"en":"contrive","tr":"icat etmek , bulmak ( fikir , araç) ,,,, tasarlamak , bulmak"},{"en":"devise","tr":"icat etmek , bulmak ( fikir , araç) ,,, uydurmak , düşünmek"},{"en":"coin","tr":"icat etmek , bulmak ( fikir , araç) ,,,,, kelime icat etmek , sikke , para"},{"en":"depict","tr":"betimlemek , tasvir etmek"},{"en":"portray","tr":"betimlemek , tasvir etmek"},{"en":"delinerate","tr":"betimlemek , tasvir etmek"},{"en":"describe","tr":"betimlemek , tasvir etmek"},{"en":"outline","tr":"betimlemek , tasvir etmek ,, (ana hatlarını çizmek , taslak)"},{"en":"stifle","tr":"engel olmak (duyguyu bastırmak , boğulmak )"},{"en":"balk","tr":"engel olmak (duraksamak , tereddüt etmek )"},{"en":"foil","tr":"engel olmak (folyo , bozmak)"},{"en":"forbade","tr":"yasaklamak"},{"en":"bar","tr":"yasaklamak , (çubuk , parmaklık )"},{"en":"outlaw","tr":"yasaklamak (haydut , kanun kaçağı )"},{"en":"ban","tr":"yasaklamak (yasak )"},{"en":"attribute to","tr":"e atfetmek , bağlamak"},{"en":"ascribe to","tr":"e atfetmek , bağlamak (üstüne atmak)"},{"en":"credit to","tr":"e atfetmek , bağlamak"},{"en":"accredit to","tr":"e atfetmek , bağlamak"},{"en":"rot","tr":"çürümek , bozulmak"},{"en":"spoil","tr":"çürümek , bozulmak ( zarar vermek , şımarmak)"},{"en":"perish  (pass away)","tr":"çürümek , bozulmak"},{"en":"putrefy","tr":"çürümek , bozulmak"},{"en":"decompose","tr":"çürümek , bozulmak"},{"en":"custom","tr":"gelenek görenek örf adet"},{"en":"horrify","tr":"korkutmak , ürkütmek , dehşete düşürmek"},{"en":"shock","tr":"korkutmak , ürkütmek , dehşete düşürmek (şok etmek , darbe )"},{"en":"appal","tr":"korkutmak , ürkütmek , dehşete düşürmek"},{"en":"terrify","tr":"korkutmak , ürkütmek , dehşete düşürmek"},{"en":"dismay","tr":"korkutmak , ürkütmek , dehşete düşürmek"},{"en":"startle","tr":"korkutmak , ürkütmek , dehşete düşürmek"},{"en":"daunt","tr":"korkutmak , ürkütmek , dehşete düşürmek"},{"en":"terrorize","tr":"korkutmak , ürkütmek , dehşete düşürmek"},{"en":"accelerate","tr":"hızlandırmak"},{"en":"speed up","tr":"hızlandırmak"},{"en":"expedite","tr":"hızlandırmak"},{"en":"step up","tr":"hızlandırmak ( yükselmek , artmak )"},{"en":"hasten","tr":"hızlandırmak (acele ettirmek)"},{"en":"crank up","tr":"hızlandırmak"},{"en":"fast-track","tr":"hızlandırmak"},{"en":"coincide","tr":"aynı zamana rastlamak , aynı fikirde olmak ( rastlamak , örtüşmek )"},{"en":"coexist","tr":"aynı zamana rastlamak , aynı fikirde olmak (birarada var olmak)"},{"en":"concur","tr":"aynı zamana rastlamak , aynı fikirde olmak ( aynı fikirde olmak )"},{"en":"overlap","tr":"aynı zamana rastlamak , aynı fikirde olmak ( örtüşmek , benzeşmek )"},{"en":"accustom","tr":"hazırlamak , alıştırmak"},{"en":"familiarize","tr":"hazırlamak , alıştırmak  (tanımak)"},{"en":"habituate","tr":"hazırlamak , alıştırmak"},{"en":"acclimatise","tr":"hazırlamak , alıştırmak"},{"en":"condemn","tr":"kınamak (mahkum etmek , ayıplamak)"},{"en":"denounce","tr":"kınamak (ihbar etmek , suçlamak)"},{"en":"censure","tr":"kınamak"},{"en":"reprimand","tr":"kınamak (azarlamak)"},{"en":"disprove","tr":"aksini iddia etmek , çürütmek"},{"en":"discredit","tr":"aksini iddia etmek , çürütmek (kötülemek , gözden düşürmek )"},{"en":"debunk","tr":"aksini iddia etmek , çürütmek"},{"en":"confute","tr":"aksini iddia etmek , çürütmek"},{"en":"violate","tr":"ihlal etmek , çiğnemek"},{"en":"contravene","tr":"ihlal etmek , çiğnemek"},{"en":"breach","tr":"ihlal etmek , çiğnemek"},{"en":"disobey","tr":"ihlal etmek , çiğnemek"},{"en":"transgress","tr":"ihlal etmek , çiğnemek"},{"en":"flout","tr":"ihlal etmek , çiğnemek (reddetmek , aşağılamak )"},{"en":"infringe","tr":"ihlal etmek , çiğnemek"},{"en":"allocate","tr":"ayırmak , tahsis etmek"},{"en":"assign","tr":"ayırmak , tahsis etmek"},{"en":"allot","tr":"ayırmak , tahsis etmek"},{"en":"apportion","tr":"ayırmak , tahsis etmek (paylaştırmak )"},{"en":"rebel","tr":"ayaklanmak , isyan etmek"},{"en":"riot","tr":"ayaklanmak , isyan etmek"},{"en":"revolt","tr":"ayaklanmak , isyan etmek"},{"en":"uprise","tr":"ayaklanmak , isyan etmek"},{"en":"rise up","tr":"ayaklanmak , isyan etmek"},{"en":"munity","tr":"(imtiyaz) ayaklanmak , isyan etmek"},{"en":".","tr":"."},{"en":"transmit","tr":"(teslim etmek) iletmek nakletmek"},{"en":"deliver","tr":"iletmek nakletmek"},{"en":"forward","tr":"iletmek nakletmek (ileri , sunmak)"},{"en":"dispatch","tr":"iletmek nakletmek"},{"en":"overwhelm","tr":"etkisi altına almak, zor durumda bırakmak , gark etmek ( boğmak , mahcup etmek)"},{"en":"inundate","tr":"etkisi altına almak, zor durumda bırakmak , gark etmek (su basmak , boğmak)"},{"en":"swamp","tr":"etkisi altına almak, zor durumda bırakmak , gark etmek ( bataklık , suyla doldurmak)"},{"en":"confuse","tr":"kafasını karıştırmak , şaşırtmak , hayrete düşürmek"},{"en":"baffle","tr":"kafasını karıştırmak , şaşırtmak , hayrete düşürmek"},{"en":"puzzle (bilmece)","tr":"kafasını karıştırmak , şaşırtmak , hayrete düşürmek"},{"en":"bewilder","tr":"kafasını karıştırmak , şaşırtmak , hayrete düşürmek"},{"en":"perplex","tr":"kafasını karıştırmak , şaşırtmak , hayrete düşürmek"},{"en":"confound","tr":"kafasını karıştırmak , şaşırtmak , hayrete düşürmek"},{"en":"muddle (karışıklık)","tr":"kafasını karıştırmak , şaşırtmak , hayrete düşürmek"},{"en":"bemuse","tr":"kafasını karıştırmak , şaşırtmak , hayrete düşürmek"},{"en":"implicate (ima etmek)","tr":"e karışmak , dahil etmek (suç vs) indict for , impeach , improach"},{"en":"incriminate (suçlamak)","tr":"e karışmak , dahil etmek (suç vs) indict for , impeach , improach"},{"en":"inculpate (suçlamak)","tr":"e karışmak , dahil etmek (suç vs) indict for , impeach , improach"},{"en":"acclaim (alkışlamak)","tr":"övmek"},{"en":"praise","tr":"övmek"},{"en":"commend (tavsiye etmek)","tr":"övmek"},{"en":"applaud (alkışlamak )","tr":"övmek"},{"en":"laud","tr":"övmek"},{"en":"extol","tr":"övmek"},{"en":"flatter (poh pohlamak)","tr":"övmek"},{"en":"tout (çığırtkan )","tr":"övmek"},{"en":"get sick/ill","tr":"hastalığa yakalanmak"},{"en":"come down with","tr":"hastalığa yakalanmak"},{"en":"contract","tr":"(kısaltmak , sözleşme yapmak , küçültmek) hastalığa yakalanmak"},{"en":"be inflected with","tr":"hastalığa yakalanmak"},{"en":"aspire to","tr":"arzu etmek"},{"en":"wish for","tr":"arzu etmek"},{"en":"yearn for","tr":"arzu etmek"},{"en":"long for (özlem duymak)","tr":"arzu etmek"},{"en":"crave for (burnunda tütmek)","tr":"arzu etmek"},{"en":"amalgamate (kaynaşmak)","tr":"birleşmek , birleştirmek"},{"en":"interwine","tr":"birleşmek , birleştirmek"},{"en":"intermingle","tr":"birleşmek , birleştirmek"},{"en":"interweave","tr":"birleşmek , birleştirmek"},{"en":"employ","tr":"işe almak"},{"en":"recruit (acemi , askere almak )","tr":"işe almak"},{"en":"hire (kiralamak)","tr":"işe almak"},{"en":"counteract (karşı koymak)","tr":"etkisizleştirmek , etkisini azaltmak"},{"en":"neutralize","tr":"etkisizleştirmek , etkisini azaltmak"},{"en":"defuse (yatıştırmak)","tr":"etkisizleştirmek , etkisini azaltmak"},{"en":"lavish","tr":"israf etmek , boşa harcamak"},{"en":"waste","tr":"israf etmek , boşa harcamak"},{"en":"squander","tr":"israf etmek , boşa harcamak"},{"en":"fritter (çörek)","tr":"israf etmek , boşa harcamak"},{"en":"disastrous","tr":"feci , yıkıcı"},{"en":"devastating","tr":"feci , yıkıcı"},{"en":"catastrophic","tr":"feci , yıkıcı"},{"en":"tragic","tr":"feci , yıkıcı"},{"en":"cataclysmic","tr":"feci , yıkıcı"},{"en":"calamitous","tr":"feci , yıkıcı"},{"en":"ruinous","tr":"feci , yıkıcı"},{"en":"grieveous","tr":"feci , yıkıcı"},{"en":"be instrinsic to","tr":"e özgü"},{"en":"exclusive to","tr":"e özgü"},{"en":"idiosyncratic to","tr":"e özgü"},{"en":"native to","tr":"e özgü"},{"en":"unique to","tr":"e özgü"},{"en":"specific to","tr":"e özgü"},{"en":"peculiar to","tr":"e özgü"},{"en":"endemic to/in","tr":"e özgü"},{"en":"typical of","tr":"e özgü"},{"en":"characteristic of","tr":"e özgü"},{"en":"immaculate (tertemiz)","tr":"kusursuz"},{"en":"foolproof ( çok sağlam)","tr":"kusursuz"},{"en":"seamless","tr":"kusursuz"},{"en":"intact","tr":"saflığını korumuş , el değmemiş , bakir , dokunulmamış"},{"en":"pristine","tr":"saflığını korumuş , el değmemiş , bakir , dokunulmamış"},{"en":"precursor to/of","tr":"öncü , haberci"},{"en":"herald","tr":"öncü , haberci"},{"en":"forerunner","tr":"öncü , haberci"},{"en":"harbinger","tr":"öncü , haberci"},{"en":"peculiar","tr":"garip tuhaf"},{"en":"odd","tr":"garip tuhaf"},{"en":"weird","tr":"garip tuhaf"},{"en":"eccentric","tr":"garip tuhaf"},{"en":"meticulous","tr":"özenli , titiz"},{"en":"rigorous","tr":"özenli , titiz"},{"en":"scrupulous","tr":"özenli , titiz"},{"en":"fastidious","tr":"özenli , titiz"},{"en":"worthwhile","tr":"faydalı , yararlı"},{"en":"bening","tr":"faydalı , yararlı"},{"en":"handy (kullanışlı)","tr":"faydalı , yararlı"},{"en":"unlawful","tr":"yasadışı"},{"en":"illegitimate","tr":"yasadışı"},{"en":"outlawed","tr":"yasadışı"},{"en":"permeate","tr":"nüfuz etmek , içeri sızmak"},{"en":"penetrate into","tr":"nüfuz etmek , içeri sızmak"},{"en":"infiltrate ( içeri sızmak)","tr":"nüfuz etmek , içeri sızmak"},{"en":"seep into (içer sızmak)","tr":"nüfuz etmek , içeri sızmak"},{"en":"pull out (ayrılmak)","tr":"çekip çıkarmak    (geri çekilmek ( çıkarmak , ayrılmak , silah çekmek)"},{"en":"whip (kırbaç)","tr":"çekip çıkarmak"},{"en":"dislodge","tr":"çekip çıkarmak"},{"en":".","tr":"."},{"en":"conspire","tr":"komplo kurmak"},{"en":"plot","tr":"komplo kurmak"},{"en":"collude","tr":"komplo kurmak , gizlice anlaşmak"},{"en":"contagious","tr":"bulaşıcı"},{"en":"infectious","tr":"bulaşıcı"},{"en":"communicable","tr":"bulaşıcı"},{"en":"transmitable","tr":"bulaşıcı"},{"en":"catching","tr":"bulaşıcı"},{"en":"pestilant","tr":"bulaşıcı"},{"en":"pestiferous","tr":"bulaşıcı"},{"en":"leberous","tr":"bulaşıcı"},{"en":"invaluable","tr":"paha biçilemez"},{"en":"priceless","tr":"paha biçilemez"},{"en":"precious","tr":"paha biçilemez"},{"en":"inestimable","tr":"paha biçilemez"},{"en":"beyond price","tr":"paha biçilemez"},{"en":"unwillingness","tr":"gönülsüzlük , isteksizlik"},{"en":"reluctance","tr":"gönülsüzlük , isteksizlik"},{"en":"aversion (nefret)","tr":"gönülsüzlük , isteksizlik"},{"en":"disinclination","tr":"gönülsüzlük , isteksizlik"},{"en":"loathness","tr":"gönülsüzlük , isteksizlik"},{"en":"ridiculous","tr":"gülünç , saçma"},{"en":"preposterous","tr":"gülünç , saçma"},{"en":"ludicrous","tr":"gülünç , saçma"},{"en":"nonsense / non sensical","tr":"gülünç , saçma"},{"en":"demanding","tr":"külfetli , zahmetli"},{"en":"troublesome","tr":"külfetli , zahmetli"},{"en":"onerous","tr":"külfetli , zahmetli"},{"en":"burdensome","tr":"külfetli , zahmetli"},{"en":"arduous","tr":"külfetli , zahmetli"},{"en":"laborious","tr":"külfetli , zahmetli"},{"en":"strenuous","tr":"külfetli , zahmetli"},{"en":"grueling","tr":"külfetli , zahmetli"},{"en":"cite","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"state","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"express","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"specify","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"remark","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"refer to","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"speak of","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"bring up","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"touch on","tr":"bahsetmek , değinmek , ifade etmek"},{"en":"bolster","tr":"desteklemek , savunmak , moral vermek"},{"en":"back up","tr":"geri sürmek , desteklemek , tıkanmak , yedeklemek"},{"en":"uphold","tr":"desteklemek , sürdürmek , devam ettirmek"},{"en":"stand up for","tr":"desteklemek ,savunmak"},{"en":"stick up for","tr":"desteklemek ,savunmak"},{"en":"get by/on","tr":"geçinmek , idare etmek , sollamak , atlatmak , arada kaynamak"},{"en":"live on/to","tr":"geçinmek , idame etmek , ile yaşamak (by) , hatıralarda yaşamak (to)"},{"en":"make a living","tr":"geçinmek , hayatını kazanmak"},{"en":"subsist","tr":"varlığını sürdürmek ,  mevcut olmak , geçinmek"},{"en":"stand up to","tr":"karşı koymak , dayanmak , oppose to , challange , object to"},{"en":"spy","tr":"casusluk yapmak , casus, gizlice gözetlemek ,"},{"en":"garner","tr":"almak kazanmak elde etmek"},{"en":"procure","tr":"tedarik etmek temin etmek elde etmek"},{"en":"induce","tr":"ikna etmek , neden olmak , teşvik etmek , tetiklemek"},{"en":"enjoy","tr":"sahip olmak , eğlenmek , zevk almak"},{"en":"possess","tr":"ait olmak ,"},{"en":"recollect","tr":"hatırlamak"},{"en":"strengthen","tr":"güçlendirmek"},{"en":"moderate","tr":"hafifletmek , dindirmek , azaltma , yumuşatmak"},{"en":"appease","tr":"yatıştırmak , gidermek , tatmin etmek"},{"en":"endanger","tr":"tehlikeye atmak"},{"en":"liven up","tr":"canlandırmak"},{"en":"miscellaneous","tr":"çok yönlü , çeşitli"},{"en":"inassailable","tr":"inkar edilemez çürütülemez"},{"en":"mandatory","tr":"zorunlu"},{"en":"justification","tr":"gerekçe , haklı çıkarma"},{"en":"judious","tr":"mantıklı , makul , akıllı"},{"en":"within reason","tr":"mantıklı"},{"en":"price","tr":"bedel ücret fiyat"},{"en":"lethol","tr":"ölümcül"},{"en":"descend","tr":"alçalmak , inmek"},{"en":"undertake","tr":"üstlenmek , yüklenmek"},{"en":"manufacture","tr":"üretmek , bahane uydurmak , imalat , mahsul , mamül"},{"en":"cite","tr":"alıntı yapmak"},{"en":"consult","tr":"danışmak , başvurmak"},{"en":"underscore","tr":"altını çizmek , vurgulamak"},{"en":"scatter","tr":"dağıtmak , yaymak"},{"en":"disposal","tr":"imha etmek ,ortadan kaldırmak bertaraf etmek"},{"en":"persuation","tr":"ikna"},{"en":"equivalent","tr":"eşit , denk"},{"en":"sparsely","tr":"seyrek bir şekilde"},{"en":"concisely","tr":"kısaca"},{"en":"rupture","tr":"yırtılma , kopma"},{"en":"acute","tr":"şiddetli , akut"},{"en":"prolific","tr":"üretken verimli"},{"en":"lifespan","tr":"ömür süresi"},{"en":"deprivation","tr":"mahkumiyet"},{"en":"infant","tr":"bebek"},{"en":"perspiration","tr":"terleme"},{"en":"tissue","tr":"doku"},{"en":"pesticide","tr":"böcek ilacı"},{"en":"longevity","tr":"uzun ömür"},{"en":"inaculation","tr":"aşı"},{"en":"onset","tr":"başlangıç"},{"en":"arrest","tr":"durdurmak ,  engellemek , tutuklamak"},{"en":"bound up with","tr":"bağlı olmak ilgili olmak"},{"en":"latitude","tr":"enlem hoşgörü serbestlik"},{"en":"elevation","tr":"yükseklik irtifa"},{"en":"overshadow","tr":"gölgede bırakmak , gölgelemek"},{"en":"gimmicks","tr":"hile , numara"},{"en":".","tr":"."},{"en":"crop","tr":"mahsül ürün ekin"},{"en":"culinary","tr":"aşçılık"},{"en":"a concession on","tr":"….üzerine taviz"},{"en":"juncture","tr":"kritik nokta , kavşak"},{"en":"irrigate","tr":"sulamak"},{"en":"get a move on","tr":"acele ettirmek , elini çabuk tutmak"},{"en":"juvenile","tr":"çoçuk , genç , yavru"},{"en":"precursor of","tr":"öncü , haberci"},{"en":"partially","tr":"kısmen"},{"en":"clergy","tr":"papaz , din adamı , rahip"},{"en":"impoverish","tr":"yoksullaştırmak , fakirleştirmek"},{"en":"strech","tr":"uzanmak gerinmek uzatmak"},{"en":"emigrate","tr":"göç etmek"},{"en":"circulate","tr":"dolaşmak"},{"en":"wander","tr":"başı boş dolanmak , dolanmak , gezinti , amaçsızca dolaşmak"},{"en":"naps","tr":"şekerleme (uyku gibi)"},{"en":"aviation","tr":"havacılık , uçuş"},{"en":"perpendicularly","tr":"diklemesine , dik olarak"},{"en":"backward","tr":"geriye , geri , çekingen"},{"en":"as to","tr":"hakkında"},{"en":"as for","tr":"hakkında"},{"en":"as of","tr":"itibariyle by gibi"},{"en":"in plain with","tr":"göz önünde , apaçık easily , visible"},{"en":"on a par with","tr":"ile aynı seviyede , equal to"},{"en":"as such","tr":"bu hayliyle , aslında , as is , actually , tıpkı , gibi , böyle ,gerçekte , öyle"},{"en":"in compliance with","tr":"in accordance with , e uygun olarak"},{"en":"pushing the edges of","tr":"alanın sınırlarını zorlamak , yenilik yapmak , mevcut sınırlarının ötesine geçmek"},{"en":"come up against","tr":"bir zorlukla karşılaşmak , yüzleşmek , \tkarşı karşıya kalmak"},{"en":"fill in for","tr":"geçici olarak birinin yerine göreve başlamak"},{"en":"look forward to","tr":"dört gözle beklemek"},{"en":"stand for smt/smb","tr":"birini/birşeyi temsil etmek"},{"en":"on behalf of","tr":"adına"},{"en":"fed up with","tr":"bıkmak , bezmek"},{"en":"salivary","tr":"tükürük"},{"en":"gland","tr":"bez"},{"en":"nerve","tr":"sinir"},{"en":"upend","tr":"baş aşağı gitmek , alt üst olmak"},{"en":"in a face of","tr":"nın karşısında , e rağmen , despite"},{"en":"in the presence of","tr":"gözü önünde , karşısında , huzurunda"},{"en":"in turn","tr":"in succession , sırasıyla , dolayısıyla"},{"en":"with the view to","tr":"mek mak için , mak amacıyla"},{"en":"with the eye to","tr":"mek mak için , mak amacıyla"},{"en":"by virgue of","tr":"den dolayı , sayesinde"},{"en":"put back","tr":"geri koymak"},{"en":"fight down","tr":"savaşmak"},{"en":"rush into","tr":"akın etmek , dalmak run into ile karıştırma"},{"en":"ultimately","tr":"sonunda , nihayetinde ,"},{"en":"uniformly","tr":"eşit bir şekilde , evenly , equally"},{"en":"inconsiderately","tr":"düşüncesizce"},{"en":"exceptionally","tr":"sıradışı bir şekilde , olağan üstü bir şekilde"},{"en":"indifferently","tr":"ilgisizce , umursamazca"},{"en":"hereabouts","tr":"buralarda"},{"en":"underfoot","tr":"ayakaltında"},{"en":"ashore","tr":"kıyıda sahilde karada"},{"en":"affloat","tr":"suda , yüzer halde"},{"en":"aboard","tr":"araçta uçakta gemide arabada"},{"en":"upcountry","tr":"iç bölgelerde , iç kesimlerde"},{"en":"downstream","tr":"akıntı yönünde"},{"en":"overhead","tr":"üstünde , tepesinde"},{"en":"belowstairs","tr":"aşağı katta"},{"en":"on the grounds that","tr":"dığı gerekçesiyle, e dayanarak"},{"en":"in a bid to","tr":"mek mak için , mak amacıyla"},{"en":"in the wake of","tr":"nın sonrasında , ardından"},{"en":"on account of","tr":"dığından dolayı , den dolayı , yüzünden"},{"en":"by and large","tr":"on the whole , predominantly , genel olarak , çoğunlukla"},{"en":"vicinity","tr":"yakın çevre"},{"en":"incorporate","tr":"birleşmek , dahil etmek , birleştirmek"},{"en":"entittle","tr":"isimlendirmek , hak vermek , vermek"},{"en":"accompany","tr":"eşlik etmek"},{"en":"owe","tr":"borçlu olmak"},{"en":"discord","tr":"atmak , ıskarta , çöp"},{"en":"dispose","tr":"imha etmek"},{"en":"dismay","tr":"can sıkmak , ürkütmek , korkutmak , dehşete düşürmek"},{"en":"scatter","tr":"dağıtmak , yaymak"},{"en":"aversive to","tr":"karşı isteksiz"},{"en":"runious","tr":"yıkıcı"},{"en":"wrecker","tr":"yıkıcı"},{"en":"acquanintance","tr":"familiarity aşinalık"},{"en":"complacent","tr":"halinden memnun, kayıtsız , ilgisiz"},{"en":"complaisent","tr":"uyumlu"},{"en":"be geared up for","tr":"hazırlanmış olmak"},{"en":"get across","tr":"aktarmak , anlaşılmasını sağlamak , karşıdan karşıya geçmek"},{"en":"opt for","tr":"tercih etmek"},{"en":"take exception to","tr":"birşeye itiraz etmek , gücenmek"},{"en":"to a great extent","tr":"büyük ölçüde , oranda"},{"en":"to a large degree","tr":"mostly , büyük ölçüde , oranda"},{"en":"in line with","tr":"e uygun olarak"},{"en":"consistent with","tr":"e uygun olarak"},{"en":"on second thought","tr":"tekrar düşününce"},{"en":"be taken in","tr":"aldatılmak , kanmak"},{"en":"get out of","tr":"bir yükümlülükten kaçmak , sıyrılmak"},{"en":"live up to","tr":"bir beklentiyi ya da standartı karşılamak"},{"en":"shore up","tr":"desteklemek , sağlamlaştırmak"},{"en":"a mandate for","tr":"… için yetki/emir"},{"en":"on a nity with","tr":"…. İle bir yakınlık"},{"en":"on accountability for","tr":"….den sorumlu olmak"},{"en":"be taken aback","tr":"şaşırmak , hayrete düşmek"},{"en":"boil down to","tr":"den ibaret olmak , özetlemek , kısaltmak"},{"en":"fade out","tr":"aşamalı olarak kullanımdan kalkmak , yavaşca ortadan kalkmak (fade away)"},{"en":"get at","tr":"anlatmaya çalışmak , kastetmek"},{"en":"put across","tr":"ifade etmek , açıkça anlatmak ,  yutturmak , kandırmak"},{"en":".","tr":"."},{"en":"current deficit","tr":"cari açık"},{"en":"GDP  gross domestic product","tr":"gayrisafi yurtiçi hasıla"},{"en":"debt","tr":"kredi borç"},{"en":"retail","tr":"perakende , toptan satış , tekrar anlatmak , (söylenti)yaymak, gizli bilgileri satmak"},{"en":"interest rate","tr":"faiz oranı"},{"en":"fiscal","tr":"mali , ekonomik"},{"en":"subsidy","tr":"mali destek , teşvik"},{"en":"tariff","tr":"gümrük vergisi"},{"en":"feel dizzy","tr":"başı dönmek , gözü kararmak"},{"en":"have a fever","tr":"ateşi olmak"},{"en":"hear about","tr":"haber almak"},{"en":"side effect","tr":"yan etki"},{"en":"unfathomable","tr":"anlaşılması zor , akıl almaz , dipsiz"},{"en":"convoluted","tr":"karmaşık , büklümlü , kıvrımlı , dolambaçlı"},{"en":"fuel","tr":"yakıt , benzin , benzin doldurmak , körüklemek"},{"en":"heighten","tr":"arttırmak , yükseltmek"},{"en":"jurisdiction","tr":"yetki kontrol"},{"en":"irremediable","tr":"tedavi edilemez , ölümcül"},{"en":"inoperable","tr":"tedavi edilemez , ölümcül , çalışamaz durumda /halde"},{"en":"uncanny","tr":"garip , tuhaf"},{"en":"mass slaughter","tr":"toplu katliam"},{"en":"grab attention","tr":"dikkat çekmek , grab : kapmak yakalamak"},{"en":"raw material","tr":"ham madde"},{"en":"go to waste","tr":"israf etmek , boşa gitmek , çöpe gitmek"},{"en":"subdue","tr":"boyun eğdirmek , bastırmak"},{"en":"with a view to","tr":"niyetiyle , amacıyla , mek mak için"},{"en":"play down","tr":"küçümsemek"},{"en":"opt out","tr":"vazgeçmek , çekilmek , opt for : tercih etmek  ,,,, opt to : seçmek , karar vermek"},{"en":"brush off","tr":"umursamamak ,,,,,, brush up : bilgileri tazelemek"},{"en":"follow through","tr":"devam ettirmek , gerçekleştirmek"},{"en":"damp down on","tr":"sıkı önlem almak"},{"en":"zero in on","tr":"odaklanmak"},{"en":"pull off","tr":"başarmak , çıkarmak , koparmak , kıvırmak"},{"en":"step down","tr":"istifa etmek"},{"en":"iron out","tr":"sorunları düzeltmek"},{"en":"revolve","tr":"etrafında dönmek"},{"en":"turn in","tr":"teslim etmek (proje,ödev vs) ,, yatmak , ihbar etmek"},{"en":"put in","tr":"yerleştirmek , eklemek , zaman harcamak , sunmak"},{"en":"trail","tr":"iz yol"},{"en":"reuse","tr":"yeniden kullanmak"},{"en":"waste management","tr":"atık yönetimi"},{"en":"litter","tr":"çöp"},{"en":"landfill","tr":"çöp sahası"},{"en":"vie for","tr":"yarışmak , rekabet etmek"},{"en":"contend for","tr":"yarışmak , rekabet etmek"},{"en":"race for","tr":"yarışmak , rekabet etmek"},{"en":"underpin","tr":"desteklemek  , temelini oluşturmak"},{"en":"act on","tr":"harekete geçirmek , hareket etmek"},{"en":"act up","tr":"uygunsuz davranmak , düzgün çalışmamak"},{"en":"take a toll on","tr":"e zarar vermek ,durumunu kötüleştirmek"},{"en":"with the advent of","tr":"nın gelmesiyle , icadıyla"},{"en":"from all walks of life","tr":"toplumun her kesiminden"},{"en":"remain intact","tr":"temiz kalmak , sağlam kalmak"},{"en":"suffer a setback","tr":"aksaklık yaşamak"},{"en":"feel up to","tr":"iyi hissetmek , yapmaya yatkın olmak , canı istemek"},{"en":"get round to","tr":"zaman ayırmak , en sonunda gelmek/ulaşmak"},{"en":"own up to","tr":"üstlenmek , üstüne almak , kabullenmek"},{"en":"turn to","tr":"e yönelmek , dikkatini vermek , yardım istemek , dönüşmek"},{"en":"appeal for","tr":"çağrıda bulunmak yardım istemek , ad dilemek"},{"en":"bluntly","tr":"açıkça , dobra dobra"},{"en":"formidable","tr":"ürkütücü , korkutucu"},{"en":"at all","tr":"asla , hiç , never"},{"en":"wear off","tr":"etkisi yavaş yavaş geçmek , fade away , diminish"},{"en":"dehydrate","tr":"susuz kalmak , su kaybetmek , dry out"},{"en":"dry out","tr":"kurumak , kuraklaştırmak , susuz kalmak , su kaybetmek"},{"en":"sedentary","tr":"durağan , stagnation , stationary"},{"en":"frustrate","tr":"hayal kırıklığına uğramak , bozmak , engel olmak , boşa çıkarmak"},{"en":"inundate","tr":"sel , su basmak , boğulmak , zor durumda bırakmak , gark etmek , etkisi altına almak"},{"en":"arouse","tr":"duygu/his  uyandırmak ,"},{"en":"accede","tr":"kabul etmek , onaylamak"},{"en":"malware","tr":"kötü yazılım"},{"en":"malafide","tr":"kötü niyetle ,art niyetle"},{"en":"malefficient","tr":"zararlı"},{"en":"wrought","tr":"çalışan , yapılmış , işlenmiş , pürüssüz"},{"en":"now that","tr":"dığına göre , mademki"},{"en":"given that","tr":"göz önüne alırsak , farz edersek , diyelim ki , -ğunu düşünerek"},{"en":"seeing that","tr":"mademki , -diğine göre"},{"en":"disgust","tr":"tiksinti , tiksindirmek"},{"en":"disguise","tr":"kılık değiştirmek , gizlenmek ,"},{"en":"whatsoever","tr":"her ne , \therhangi bir , hiç , hiçbir şekilde"},{"en":"grossly","tr":"fena halde , kaba bir şekilde , aşırı derece de ,"},{"en":"somewhat","tr":"birazcık"},{"en":"somehow","tr":"nasıl olursa olsun , bir şekilde , her nedense"},{"en":"precipitate","tr":"hızlandırmak , tetiklemek , teşvik etmek"},{"en":"troubleshoot","tr":"sorun gidermek ,arıza bulmak"},{"en":"debug","tr":"hataları ayıklamak , onarmak"},{"en":"encrypt","tr":"şifrelemek"},{"en":"decrypt","tr":"şifreyi çözmek"},{"en":"back up","tr":"yedeklemek"},{"en":"catch on","tr":"tutulmak , anlamak , kavramak , yayılmak , popüler olmak"},{"en":"wear out","tr":"aşınmak , erade , yıpranmak , eskitmek"},{"en":"succinct","tr":"kısa , öz , özlü"},{"en":"take a presendance over","tr":"öncelikli olmak"},{"en":"get by on","tr":"kısıtlı imkanlarla idare etmek , (yaşayabilmek için) bir şeye dayanmak , bir şeyle yola çıkmak"},{"en":"run through","tr":"gözden geçirmek , içinden geçmek , delik açmak"},{"en":"disarray","tr":"düzensizlik , karışıklık"},{"en":"congruence","tr":"uyum , uygunluk"},{"en":"stumble on","tr":"sendelemek , tökezlemek , rastlamak , karşılaşmak , denk gelmek"},{"en":"unchanging","tr":"değişmeyen"},{"en":"in the aftermath of","tr":"sonrasından , ardından"},{"en":"remission","tr":"hafifleme , gerileme"},{"en":"celestial","tr":"göksel , semavi"},{"en":"austerity","tr":"kemer sıkma , sıkı ekonomi"},{"en":"poaching","tr":"avcılık"},{"en":"grassland","tr":"otlak çayır"},{"en":"go forward","tr":"ilerlemek"},{"en":"bear out","tr":"doğrulamak , desteklemek"},{"en":"put in","tr":"yerleşmek , ilave etmek , eklemek"},{"en":"harp on","tr":"sürekli tekrar etmek , aynı konuya takılmak"},{"en":".","tr":"."},{"en":"watch out","tr":"dikkat etmek , gözlemek"},{"en":"turn up","tr":"ortaya çıkmak , açmak (ses , ışık) katılmak, bulmak , dönmek"},{"en":"for a while","tr":"bir süreliğine"},{"en":"drop out of","tr":"de ayrılmak (okul vs) , yarıda bırakmak"},{"en":"disastrous","tr":"talihsiz korkmuş feci felakat korkunç"},{"en":"determinant","tr":"belirleyici"},{"en":"elevation","tr":"yükseklik , irtifa , yükselti"},{"en":"latitude","tr":"enlem , serbestlik , hoşgörü"},{"en":"ingest","tr":"yutmak , içine çekmek ,ilgilenmek , içe almak"},{"en":"garlic","tr":"sarımsak"},{"en":"enroll","tr":"kaydolmak"},{"en":"bounce","tr":"zıplamak , sekme-k , canlılık , sıçrama"},{"en":"anthem","tr":"marş"},{"en":"fatigue","tr":"aşırı yorgunluk"},{"en":"breadth","tr":"genişlik"},{"en":"voluntarily","tr":"kasıtlı olarak , gönüllü olarak , isteyerek"},{"en":"adamantly","tr":"kararlı bir şekilde , inatla"},{"en":"single mindedly","tr":"kararlı bir şekilde"},{"en":"tear apart","tr":"paramparça etmek , aşırı üzmek ,kötülemek , eleştirmek"},{"en":"pass out","tr":"bayılmak"},{"en":"faint","tr":"bayılmak"},{"en":"duplicate","tr":"kopyasını yapmak , tekrarlamak , kopya , yedek"},{"en":"ascend","tr":"yükselmek , artmak"},{"en":"pledge","tr":"söz vaat rehin çaylak yemin etmek"},{"en":"furnish","tr":"donatmak , döşemek (mobilya vs) sunmak sağlamak"},{"en":"at any cost","tr":"ne pahasına olursa olsun"},{"en":"at loss","tr":"zararda , ne yapacağını bilmez , şaşırmak"},{"en":"at will","tr":"leyfi , isteğe göre"},{"en":"in line with","tr":"uyumlu olarak , doğrultusunda"},{"en":"a vindication of","tr":"nın kanıtlanması"},{"en":"good riddance !","tr":"oh be , iyi kurtulduk ! ,,,, riddance : atlatma kurtulma"},{"en":"long overdue closure !","tr":"geç bile kaldılar , çoktan kapanması gerekirdi. !"},{"en":"overdue","tr":"geç kalmak"},{"en":"closure","tr":"kapanmak"},{"en":"tenet","tr":"ilke inanç doktrin"},{"en":"benevolence","tr":"yardımseverlik , iyilikseverlik"},{"en":"salience","tr":"belirgin , göze çarpma , dikkat çekme"},{"en":"hedgehog","tr":"kirpi , dikenli meyve"},{"en":"fraternity","tr":"kardeşlik , dostluk topluluğu"},{"en":"round the clock","tr":"7/24 saat süren , gece gündüz"},{"en":"keenly","tr":"büyük br dikkatle , şiddetle"},{"en":"cement","tr":"sağlamlaştırmak , pekiştirmek , consolidate , çimento , macun"},{"en":"erratic","tr":"düzensiz , istikrarsız"},{"en":"permafrost","tr":"daima don , donmuş toprak"},{"en":"dazzle","tr":"göz kamaştırmak , büyülemek"},{"en":"outright","tr":"düpedüz , açıkça , kesin , tamamen"},{"en":"pebble","tr":"çakıltaşı"},{"en":"preoccupation","tr":"zihni meşgul eden şey , meşguliyet , kaygı , endişe"},{"en":"strain","tr":"baskı gerginlik zorlama gerilmek kasılmak"},{"en":"maternity leave","tr":"doğum izni"},{"en":"adjacent","tr":"yanyana bitişik"},{"en":"compulsive","tr":"takıntılı , kontrol edilemeyen , zorunlu mecburi (compultory) ile karıştırma form farklı)"},{"en":"come into","tr":"katılmak , girmek , mirasa konmak"},{"en":"substance","tr":"madde cisim içerik"},{"en":"remedy","tr":"çare deva ilaç tedavi"},{"en":"overall","tr":"tüm tam genel olarak"},{"en":"chop down","tr":"ağacı kesmek , devirmek , yok etmek , yerle bir etmek"},{"en":"move on","tr":"hayatına devam etmek , devam etmek"},{"en":"cut off","tr":"kesmek yok etmek imha etmek"},{"en":"come out","tr":"ortaya çıkmak , çıkmak , yayımlamak"},{"en":"come over","tr":"olmak , uğramak , ziyaret etmek , başına gelmek"},{"en":"forceful","tr":"güçlü etkileyici ikna edici (az evvel formidable ile karıştırdın o korkutucu ürkütücü demek)"},{"en":"inhibitor","tr":"yavaşlatıcı , durdurucu"},{"en":"distractor","tr":"çeldirici"},{"en":"termination","tr":"son verme son bulma"},{"en":"concession","tr":"taviz , imtiyaz , ödün"},{"en":"plunder","tr":"yağlamak"},{"en":"ardeous","tr":"yıkıcı felaket"},{"en":"for the record","tr":"kayıtlara geçmesi için , belirtmek gerekirse ,"},{"en":"to the letter","tr":"harfi harfine , aynen"},{"en":"in short supply","tr":"az bulunur , kıt , seyrek , yetersiz"},{"en":"out of the question","tr":"söz konusu değil , imkansız olanaksız gündem dışı"},{"en":"dampening","tr":"…. Geçirmeyen , ıslatma , nemlemdirme , azalma , bastırma , tavlama"},{"en":"frustrate","tr":"hayal kırıklığına uğramak , bozmak , engel olmak , boşa çıkarmak"},{"en":"make out","tr":"anlamak , idare etmek , anlam çıkarmak, yazmak"},{"en":"put back","tr":"geri almak , yerine koymak , engel olmak geçiktirmek"},{"en":"go by","tr":"abide by , e göre hareket etmek , izlemek ,  kaçmak , bakmak , geçip gitmek"},{"en":"sprang up","tr":"aniden ortaya çıkmak , türemek , sıçramak ,"},{"en":"keen","tr":"istekli , keskin"},{"en":"marginalize","tr":"ötekileştirmek"},{"en":"low-lying","tr":"alçak , deniz seviyesine yakın , düşük rakımlı"},{"en":"beast","tr":"canavar , yaratık , hayvan"},{"en":"fulfilment","tr":"yerine getirme , ifa , icra ,yapma"},{"en":"conduit","tr":"kanal yol geçit boru"},{"en":"live off","tr":"den geçinmek , beslenmek , ile geçinmek"},{"en":"fell out","tr":"bozuşma , düşmek"},{"en":"whereby","tr":"aracılığıyla , vasıtasıyla , bu sayede"},{"en":"lag behind","tr":"gerisinde kalmak , geri kalmak"},{"en":"dynasty","tr":"haneden sülale"},{"en":"indigenous","tr":"yerli , native , yerel , doğal , özgü"},{"en":"nominate","tr":"aday göstermek , atamak , görevlendirmek"},{"en":"foremost","tr":"önde gelen , en önemli , gelişmiş"},{"en":"conquer","tr":"fethetmek"},{"en":"exert leverage","tr":"güç/etki/nüfuz kulanmak"},{"en":"uphold a commitment","tr":"sözünden dönmemek , tahaddütü devam ettirmek"},{"en":"buttres a argument","tr":"bir iddiayı desteklemek , sağlamlaştırmak"},{"en":"for the sake of argument","tr":"lafın gelişi , farazi olarak"},{"en":"in a bind","tr":"zor durumda , sıkış durumda"},{"en":"in the course of","tr":"esnasında , süresince"},{"en":"out of the blue","tr":"birden bire , aniden , öngörülmeyen , beklenmeyen"},{"en":"on the double","tr":"hemen , çok çabuk , koşar adım , fırtına gibi , bir koşu"},{"en":".","tr":"."},{"en":"overfed","tr":"aşırı beslenmiş"},{"en":"outnumber","tr":"sayıca üstün olmak"},{"en":"malnourish","tr":"yetersiz beslenmek"},{"en":"overeat","tr":"fazla yemek yemek"},{"en":"outright","tr":"düpedüz , açıkça , kesin , tamamen"},{"en":"delinquent","tr":"suça karışmış , çoçuk suçlu , ihmalkar , ödemesi geçikmiş"},{"en":"refraction","tr":"kırılma , kırılım"},{"en":"abduction","tr":"adam kaçırma"},{"en":"render obsolute","tr":"modasının geçmesine neden olmak , yaymak , teslim etmek"},{"en":"fuel speculation about","tr":"…ya dair tartışmaları alevlendirmek/şiddetlendirmek"},{"en":"come to terms with","tr":"mutabık olmak, …yı kabullenmek , uzlaşmak"},{"en":"run over","tr":"gözden geçirmek , çiğnemek , ezmek , çarpmak"},{"en":"blend into","tr":"içine karışmak"},{"en":"spine","tr":"omurga sırt"},{"en":"run away","tr":"kaçmak , firar etmek"},{"en":"scoff at","tr":"ridicule , alay etmek , ciddiye almamak , önemsememek , küçümsemek"},{"en":"catch on to","tr":"bir şeyi anlamaya başlamak , kavramak"},{"en":"make off with","tr":"make away wtih , çalıp kaçmak"},{"en":"put up for","tr":"satışa çıkarmak , bebek satmak ,"},{"en":"cater to","tr":"hitap etmek , karşılamak , farkına varmak"},{"en":"cater for","tr":"hazırlamak , sağlamak , tedarik etmek , ihtiyacı karşılamak , yemek hazırlamak"},{"en":"erroneously","tr":"hatalı bir şekilde"},{"en":"be taken in","tr":"aldatılmak , kanmak"},{"en":"get out of","tr":"kaçınmak , sıyrılmak"},{"en":"shore up","tr":"desteklemek , sağlamlaştırmak"},{"en":"cascade","tr":"zincirleme etki yapmak , dalga dalga döküm , çağlayan gibi , basamaklaştırmak , şelale"},{"en":"cripple","tr":"sakat , sakatlanmak , felce uğratan , yıkıcı , topal , arızalı , belini bükmek , zarar vermek"},{"en":"crimple","tr":"büzülmek , shrink gibi"},{"en":"bounty system","tr":"ödül sistemi"},{"en":"stretch over","tr":"boyunca uzanmak"},{"en":"rebound","tr":"geri gelmek , yankılanmak , fiyatı düştükten sonra tekrar yükselmesi"},{"en":"revile","tr":"yermek , nefret etmek , küfür hakaret"},{"en":"pest","tr":"haşare , dert , bela , musibet , zararlı"},{"en":"itinerant sellers","tr":"mobil satıcılar , itinerant merchant daha doğru olur aslında"},{"en":"foresight","tr":"öngörü"},{"en":"entrenched","tr":"yerleşmiş . Köklü , sağlam , değişmez"},{"en":"tempt","tr":"şeytana uyma , kışkırtmak , baştan çıkarmak , özendirmek , cezbetmek"},{"en":"genuinelly","tr":"içtenlikle , gerçekten , hakikaten , canı gönülden"},{"en":"vehemently","tr":"şiddetle , hararetli bir şekilde , öfkeli bir şekilde"},{"en":"staunchly","tr":"kararlı / katı / inat bir şekilde"},{"en":"gravely","tr":"ağırbaşlı bir şekilde , ciddi bir şekilde ,"},{"en":"resonate with","tr":"yankı uyandırmak , \t(belirli bir anlam/nitelik ile) yüklü/dolu olmak"},{"en":"tainture","tr":"pislik leke"},{"en":"import","tr":"aktarmak , vermek (bilgi nitelik vs) ithal etmek , önem"},{"en":"perpetual","tr":"sürekli daimi"},{"en":"versatile","tr":"çok yönlü çok amaçlı"},{"en":"pliable","tr":"esnek , katlanabilen"},{"en":"call back","tr":"hatırlamak , \ttekrar aramak , çağırmak , geri dönmek"},{"en":"put down","tr":"eleştirmek , indirmek , kaymak , bastırmak , yazmak,düşünmek,küçümsemek"},{"en":"put away","tr":"öldürmek , ortadan kaldırmak , biriktirmek , silip süpürmek"},{"en":"litigate","tr":"dava etmek , dava açmak"},{"en":"mediate","tr":"arabuluculuk yapmak , yatıştırmak , barıştırmak"}];
+
+// ─── STATE ───
+let currentIndex = 0;
+let isPlaying = false;
+let isPaused = false;
+let shouldStop = false;
+let playTimeout = null;
+
+let enRate = 1.0;
+let trRate = 1.0;
+let selectedEnVoice = null; // SpeechSynthesisVoice object
+let selectedTrVoice = null;
+let resumeIndex = 0;
+
+// Named voice slots: {label, voice}
+let enVoiceSlots = [];
+let trVoiceSlots = [];
+
+const STORAGE_KEY = 'wordapp_v2';
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      idx: currentIndex,
+      enRate, trRate,
+      enVoiceIdx: enVoiceSlots.findIndex(s => s.voice === selectedEnVoice),
+      trVoiceIdx: trVoiceSlots.findIndex(s => s.voice === selectedTrVoice),
+    }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e) { return null; }
+}
+
+// ─── VOICE SETUP ───
+const NAMES_EN = ['Ceren', 'Murat', 'Safiye'];
+const NAMES_TR = ['Ceren', 'Murat', 'Safiye'];
+
+function buildVoiceSlots() {
+  const voices = window.speechSynthesis.getVoices();
+  const enVoices = voices.filter(v => v.lang.startsWith('en'));
+  const trVoices = voices.filter(v => v.lang.startsWith('tr'));
+
+  // Sort: premium first
+  const score = v => {
+    let s = 0;
+    if (/premium|enhanced|natural|neural/i.test(v.name)) s += 10;
+    if (/samantha|daniel|karen|moira|alex|siri/i.test(v.name)) s += 5;
+    return s;
+  };
+  enVoices.sort((a,b) => score(b)-score(a));
+  trVoices.sort((a,b) => score(b)-score(a));
+
+  enVoiceSlots = NAMES_EN.map((label, i) => ({
+    label,
+    voice: enVoices[i % Math.max(enVoices.length,1)] || null
+  }));
+  trVoiceSlots = NAMES_TR.map((label, i) => ({
+    label,
+    voice: trVoices[i % Math.max(trVoices.length,1)] || null
+  }));
+
+  // Default selections
+  if (!selectedEnVoice && enVoiceSlots[0]) selectedEnVoice = enVoiceSlots[0].voice;
+  if (!selectedTrVoice && trVoiceSlots[0]) selectedTrVoice = trVoiceSlots[0].voice;
+
+  renderVoiceChips();
+}
+
+function renderVoiceChips() {
+  // Welcome page
+  renderChipSet('en-voice-chips', enVoiceSlots, selectedEnVoice, (slot,el) => {
+    selectedEnVoice = slot.voice;
+    syncVoiceChips();
+  }, true);
+  renderChipSet('tr-voice-chips', trVoiceSlots, selectedTrVoice, (slot,el) => {
+    selectedTrVoice = slot.voice;
+    syncVoiceChips();
+  }, false);
+  // Player page
+  renderChipSet('p-en-voice-chips', enVoiceSlots, selectedEnVoice, (slot,el) => {
+    selectedEnVoice = slot.voice;
+    syncVoiceChips();
+  }, true);
+  renderChipSet('p-tr-voice-chips', trVoiceSlots, selectedTrVoice, (slot,el) => {
+    selectedTrVoice = slot.voice;
+    syncVoiceChips();
+  }, false);
+}
+
+function renderChipSet(containerId, slots, selectedVoice, onClick, isEn) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  slots.forEach((slot, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'chip chip-voice' + (slot.voice === selectedVoice ? (isEn ? ' active' : ' active-tr') : '');
+    btn.textContent = slot.label;
+    if (!slot.voice) btn.style.opacity = '0.4';
+    btn.onclick = () => { onClick(slot, btn); };
+    container.appendChild(btn);
+  });
+}
+
+function syncVoiceChips() {
+  renderVoiceChips();
+}
+
+// ─── SPEED SETTERS ───
+function setEnSpeed(rate, el) {
+  enRate = rate;
+  setActiveChip(el, 'en-speed-chips', false);
+  // sync player
+  syncSpeedChips('p-en-speed-chips', rate, true);
+}
+function setTrSpeed(rate, el) {
+  trRate = rate;
+  setActiveChip(el, 'tr-speed-chips', false);
+  syncSpeedChips('p-tr-speed-chips', rate, false);
+}
+function setEnSpeedP(rate, el) {
+  enRate = rate;
+  setActiveChip(el, 'p-en-speed-chips', true);
+  syncSpeedChips('en-speed-chips', rate, false);
+}
+function setTrSpeedP(rate, el) {
+  trRate = rate;
+  setActiveChip(el, 'p-tr-speed-chips', true);
+  syncSpeedChips('tr-speed-chips', rate, false);
+}
+
+function setActiveChip(el, containerId, isTr) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.chip').forEach(b => b.classList.remove('active','active-tr'));
+  el.classList.add(isTr ? 'active-tr' : 'active');
+}
+
+function syncSpeedChips(containerId, rate, isTr) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.chip').forEach(b => {
+    b.classList.remove('active','active-tr');
+    const bRate = parseFloat(b.textContent);
+    if (Math.abs(bRate - rate) < 0.01) b.classList.add(isTr ? 'active-tr' : 'active');
+  });
+}
+
+// ─── WORD LIST ───
+function updateWordList(idx) {
+  const container = document.getElementById('word-list');
+  container.innerHTML = '';
+  const start = Math.max(0, idx - 1);
+  const end = Math.min(ALL_WORDS.length - 1, idx + 9);
+  for (let i = start; i <= end; i++) {
+    const w = ALL_WORDS[i];
+    const item = document.createElement('div');
+    item.className = 'word-list-item' + (i === idx ? ' active-item' : '');
+    item.innerHTML = `
+      <span class="wli-num">${i+1}</span>
+      <span class="wli-en">${w.en}</span>
+      <span class="wli-tr">${w.tr}</span>
+    `;
+    const capturedIdx = i;
+    item.onclick = () => jumpTo(capturedIdx);
+    container.appendChild(item);
+  }
+}
+
+function jumpTo(idx) {
+  stopAll();
+  shouldStop = false;
+  currentIndex = idx;
+  isPlaying = true;
+  isPaused = false;
+  setStatus('playing');
+  playWord(idx);
+}
+
+// ─── SCREENS ───
+function show(id) {
+  ['welcome','player','finish'].forEach(s => {
+    document.getElementById(s).style.display = 'none';
+  });
+  document.getElementById(id).style.display = 'flex';
+}
+
+// ─── INIT ───
+window.addEventListener('load', () => {
+  if (!window.speechSynthesis) {
+    document.getElementById('speech-check').style.display = 'block';
+  }
+
+  const loadVoices = () => {
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      buildVoiceSlots();
+      restoreState();
+    }
+  };
+
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  setTimeout(loadVoices, 300); // fallback
+
+  // Check saved progress for continue button
+  const saved = loadState();
+  if (saved && saved.idx > 0 && saved.idx < ALL_WORDS.length) {
+    resumeIndex = saved.idx;
+    document.getElementById('continue-btn').style.display = 'block';
+  }
+});
+
+function restoreState() {
+  const saved = loadState();
+  if (!saved) return;
+  if (saved.enRate) { enRate = saved.enRate; syncSpeedChips('en-speed-chips', enRate, false); syncSpeedChips('p-en-speed-chips', enRate, false); }
+  if (saved.trRate) { trRate = saved.trRate; syncSpeedChips('tr-speed-chips', trRate, true); syncSpeedChips('p-tr-speed-chips', trRate, true); }
+  if (saved.enVoiceIdx >= 0 && enVoiceSlots[saved.enVoiceIdx]) {
+    selectedEnVoice = enVoiceSlots[saved.enVoiceIdx].voice;
+  }
+  if (saved.trVoiceIdx >= 0 && trVoiceSlots[saved.trVoiceIdx]) {
+    selectedTrVoice = trVoiceSlots[saved.trVoiceIdx].voice;
+  }
+  syncVoiceChips();
+}
+
+function checkResume() {
+  const saved = loadState();
+  if (saved && saved.idx > 0 && saved.idx < ALL_WORDS.length) {
+    resumeIndex = saved.idx;
+    const word = ALL_WORDS[saved.idx];
+    document.getElementById('resume-text').innerHTML =
+      `<strong>${saved.idx + 1}. kelimede</strong> kalmıştınız.<br><em style="color:var(--accent2)">"${word.en}"</em><br><br>Devam etmek ister misiniz?`;
+    document.getElementById('resume-modal').classList.add('show');
+  } else {
+    startFresh();
+  }
+}
+
+function hideModal() { document.getElementById('resume-modal').classList.remove('show'); }
+
+function startFromSettings() {
+  const inp = document.getElementById('start-from-input');
+  let val = parseInt(inp.value) || 1;
+  val = Math.max(1, Math.min(ALL_WORDS.length, val));
+  currentIndex = val - 1;
+  hideModal();
+  show('player');
+  startPlaying();
+}
+
+function startFresh() {
+  hideModal();
+  currentIndex = 0;
+  saveState();
+  show('player');
+  startPlaying();
+}
+
+function resumeFrom() {
+  hideModal();
+  currentIndex = resumeIndex;
+  show('player');
+  startPlaying();
+}
+
+function stopAndGoHome() {
+  stopAll();
+  saveState();
+  show('welcome');
+  const saved = loadState();
+  if (saved && saved.idx > 0 && saved.idx < ALL_WORDS.length) {
+    resumeIndex = saved.idx;
+    document.getElementById('continue-btn').style.display = 'block';
+  }
+}
+
+function stopAll() {
+  shouldStop = true;
+  if (playTimeout) { clearTimeout(playTimeout); playTimeout = null; }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  isPlaying = false;
+  isPaused = false;
+  setStatus('stopped');
+}
+
+function setStatus(state) {
+  const dot = document.getElementById('status-dot');
+  const label = document.getElementById('status-label');
+  dot.className = 'status-dot';
+  const btn = document.getElementById('btn-pause');
+  if (state === 'playing') {
+    dot.classList.add('playing');
+    label.textContent = 'Oynatılıyor...';
+    btn.textContent = '⏸ Duraklat';
+  } else if (state === 'paused') {
+    dot.classList.add('paused');
+    label.textContent = 'Duraklatıldı';
+    btn.textContent = '▶ Devam Et';
+  } else {
+    label.textContent = 'Hazır';
+    btn.textContent = '▶ Başlat';
+  }
+}
+
+function updateCard(idx, phase) {
+  const word = ALL_WORDS[idx];
+  const total = ALL_WORDS.length;
+
+  document.getElementById('word-index').textContent = `${idx+1} / ${total}`;
+  document.getElementById('prog-current').textContent = idx+1;
+  document.getElementById('prog-fill').style.width = `${((idx+1)/total*100).toFixed(1)}%`;
+
+  const enEl = document.getElementById('word-en');
+  const trEl = document.getElementById('word-tr');
+
+  if (enEl.textContent !== word.en) {
+    enEl.textContent = word.en;
+    enEl.classList.remove('word-animate');
+    void enEl.offsetWidth;
+    enEl.classList.add('word-animate');
+  }
+
+  ['dot-en','dot-wait','dot-tr'].forEach((d,i) => {
+    const el = document.getElementById(d);
+    el.className = 'phase-dot';
+    if (i < phase) el.classList.add('done');
+    else if (i === phase) el.classList.add('active');
+  });
+
+  if (phase >= 2) {
+    trEl.textContent = word.tr;
+    trEl.classList.add('visible');
+  } else {
+    trEl.textContent = '...';
+    trEl.classList.remove('visible');
+  }
+
+  updateWordList(idx);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ARKA PLAN SES SİSTEMİ
+// 3 katmanlı çözüm:
+//  1) AudioContext "silent buffer" — tarayıcıyı medya oturumu açık tutar
+//  2) MediaSession API — kilit ekranında kontroller (iOS 15+, Android)
+//  3) visibilitychange + pageshow/pagehide — ekran kapanınca otomatik devam
+// ═══════════════════════════════════════════════════════════════
+
+let audioCtx = null;
+let silentSource = null;
+let silentInterval = null;
+
+// Sessiz ses tamponu — AudioContext'i "aktif medya" olarak işaretler
+function initAudioContext() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) { return; }
+}
+
+function startSilentAudio() {
+  initAudioContext();
+  if (!audioCtx) return;
+  // Her 20 saniyede bir 0.1s sessiz buffer çal — iOS audio session'ı canlı tutar
+  if (silentInterval) clearInterval(silentInterval);
+  silentInterval = setInterval(() => {
+    if (!isPlaying || isPaused) return;
+    try {
+      const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.1, audioCtx.sampleRate);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(audioCtx.destination);
+      src.start();
+    } catch(e) {}
+  }, 20000);
+}
+
+function stopSilentAudio() {
+  if (silentInterval) { clearInterval(silentInterval); silentInterval = null; }
+}
+
+// MediaSession API — kilit ekranı kontrolleri
+function setupMediaSession() {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: 'Kelime Ezber',
+    artist: 'İngilizce Antrenman',
+    album: ALL_WORDS[currentIndex] ? ALL_WORDS[currentIndex].en : '',
+  });
+  navigator.mediaSession.setActionHandler('play', () => {
+    if (isPaused) togglePause();
+  });
+  navigator.mediaSession.setActionHandler('pause', () => {
+    if (isPlaying && !isPaused) togglePause();
+  });
+  navigator.mediaSession.setActionHandler('nexttrack', () => nextWord());
+  navigator.mediaSession.setActionHandler('previoustrack', () => prevWord());
+}
+
+function updateMediaSession(word) {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: word.en,
+      artist: word.tr,
+      album: `Kelime ${currentIndex + 1} / ${ALL_WORDS.length}`,
+    });
+    navigator.mediaSession.playbackState = 'playing';
+  } catch(e) {}
+}
+
+// Ekran kapandığında / uygulama arka plana geçtiğinde devam et
+let wasPlayingBeforeHide = false;
+let resumeAttempts = 0;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // Arka plana geçti
+    wasPlayingBeforeHide = isPlaying && !isPaused;
+    resumeAttempts = 0;
+    if (wasPlayingBeforeHide) {
+      // SpeechSynthesis bazı tarayıcılarda arka planda durur
+      // Bunu 300ms sonra kontrol et ve gerekirse yeniden başlat
+      setTimeout(checkAndResumeAfterHide, 300);
+    }
+  } else {
+    // Ön plana döndü — eğer çalıyordu ama durmuşsa yeniden başlat
+    if (wasPlayingBeforeHide && !isPlaying && !isPaused) {
+      resumeAttempts = 0;
+      shouldStop = false;
+      isPlaying = true;
+      setStatus('playing');
+      playWord(currentIndex);
+    }
+    // AudioContext suspend durumundaysa resume et
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(()=>{});
+    }
+  }
+});
+
+function checkAndResumeAfterHide() {
+  if (!document.hidden) return; // Zaten ön planda
+  if (!wasPlayingBeforeHide) return;
+  if (isPaused) return;
+  resumeAttempts++;
+  // SpeechSynthesis durmuş mu kontrol et
+  if (window.speechSynthesis && !window.speechSynthesis.speaking && isPlaying && resumeAttempts <= 5) {
+    // Durmuş — yeniden başlat
+    window.speechSynthesis.cancel();
+    setTimeout(() => {
+      if (!isPaused && wasPlayingBeforeHide) {
+        playWord(currentIndex);
+      }
+    }, 100);
+  }
+}
+
+// iOS: Sayfa gizlenince (home tuşu vs) pagehide — bazı cihazlarda visibilitychange yerine bu tetiklenir
+window.addEventListener('pagehide', () => {
+  wasPlayingBeforeHide = isPlaying && !isPaused;
+});
+window.addEventListener('pageshow', (e) => {
+  if (wasPlayingBeforeHide && !isPlaying) {
+    setTimeout(() => {
+      shouldStop = false; isPlaying = true; isPaused = false;
+      setStatus('playing'); playWord(currentIndex);
+    }, 200);
+  }
+});
+
+// ─── SPEECH ───
+function speak(text, lang, rate, voiceObj, callback) {
+  if (!window.speechSynthesis || shouldStop) { if(callback)callback(); return; }
+  window.speechSynthesis.cancel();
+
+  // AudioContext'i aktif tut
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang === 'en' ? 'en-US' : 'tr-TR';
+  utter.rate = rate;
+  utter.pitch = 1.0;
+  if (voiceObj) utter.voice = voiceObj;
+
+  let callbackFired = false;
+  const done = () => {
+    if (callbackFired) return;
+    callbackFired = true;
+    if (callback && !shouldStop) callback();
+  };
+
+  utter.onend = done;
+  utter.onerror = (e) => {
+    // 'interrupted' hatası genelde başka bir utterance başladığında olur — ignore
+    if (e.error === 'interrupted') return;
+    done();
+  };
+
+  // Güvenlik: utterance hiç bitmezse 30s sonra zorla devam et
+  const watchdog = setTimeout(() => {
+    if (!callbackFired) {
+      window.speechSynthesis.cancel();
+      done();
+    }
+  }, 30000);
+  utter.onend = () => { clearTimeout(watchdog); done(); };
+
+  window.speechSynthesis.speak(utter);
+}
+
+// ─── PLAYBACK ───
+function playWord(idx) {
+  if (shouldStop || idx >= ALL_WORDS.length) {
+    if (idx >= ALL_WORDS.length) showFinish();
+    return;
+  }
+  currentIndex = idx;
+  saveState();
+  updateCard(idx, 0);
+  setStatus('playing');
+  updateMediaSession(ALL_WORDS[idx]);
+
+  // EN
+  speak(ALL_WORDS[idx].en, 'en', enRate, selectedEnVoice, () => {
+    if (shouldStop) return;
+    updateCard(idx, 1);
+    playTimeout = setTimeout(() => {
+      if (shouldStop) return;
+      updateCard(idx, 2);
+      // TR
+      speak(ALL_WORDS[idx].tr, 'tr', trRate, selectedTrVoice, () => {
+        if (shouldStop) return;
+        playTimeout = setTimeout(() => {
+          if (shouldStop || isPaused) return;
+          playWord(idx + 1);
+        }, 600);
+      });
+    }, 1000);
+  });
+}
+
+function startPlaying() {
+  initAudioContext();
+  // AudioContext kullanıcı etkileşimi gerektiriyor — burada başlatıyoruz
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+  startSilentAudio();
+  setupMediaSession();
+  shouldStop = false;
+  isPlaying = true;
+  isPaused = false;
+  setStatus('playing');
+  playWord(currentIndex);
+}
+
+function togglePause() {
+  if (!isPlaying && !isPaused) { startPlaying(); return; }
+  if (isPaused) {
+    isPaused = false; shouldStop = false;
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+    startSilentAudio();
+    setStatus('playing'); playWord(currentIndex);
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+  } else {
+    isPaused = true; shouldStop = true;
+    if (playTimeout) { clearTimeout(playTimeout); playTimeout = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    stopSilentAudio();
+    setStatus('paused');
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+  }
+}
+
+function prevWord() {
+  const idx = Math.max(0, currentIndex - 1);
+  stopAll(); shouldStop = false;
+  isPlaying = true; isPaused = false;
+  startSilentAudio();
+  setStatus('playing'); playWord(idx);
+}
+
+function nextWord() {
+  const idx = Math.min(ALL_WORDS.length - 1, currentIndex + 1);
+  stopAll(); shouldStop = false;
+  isPlaying = true; isPaused = false;
+  startSilentAudio();
+  setStatus('playing'); playWord(idx);
+}
+
+function showFinish() {
+  isPlaying = false;
+  stopSilentAudio();
+  try { const s = loadState(); if(s){s.idx=0; localStorage.setItem(STORAGE_KEY,JSON.stringify(s));} } catch(e){}
+  show('finish');
+  document.getElementById('continue-btn').style.display = 'none';
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+}
+
+// iOS SpeechSynthesis keep-alive (5 saniyede bir — daha sık = daha güvenli)
+setInterval(() => {
+  if (window.speechSynthesis && isPlaying && !isPaused) {
+    window.speechSynthesis.pause();
+    window.speechSynthesis.resume();
+  }
+}, 5000);
+
+// Wake lock — ekranı açık tut (destekleyen cihazlarda)
+let wakeLock = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      // Sayfa tekrar görünür olunca wake lock yenile
+      document.addEventListener('visibilitychange', async () => {
+        if (!document.hidden && isPlaying) {
+          try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+        }
+      });
+    }
+  } catch(e) {}
+}
+document.body.addEventListener('click', requestWakeLock, {once:true});
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+</script>
+</body>
+</html>
