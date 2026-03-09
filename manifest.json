@@ -2,7 +2,7 @@
   "name": "Kelime Ezber",
   "short_name": "Kelime",
   "description": "İngilizce kelime ezberleme uygulaması – 2491 kelime",
-  "start_url": "./kelime-ezber.html",
+  "start_url": "./index.html"
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0d0f14",
@@ -23,4 +23,3 @@
     }
   ]
 }
-"start_url": "./index.html"
