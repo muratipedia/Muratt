@@ -2,7 +2,7 @@
   "name": "Kelime Ezber",
   "short_name": "Kelime",
   "description": "İngilizce kelime ezberleme uygulaması – 2491 kelime",
-  "start_url": "./index.html"
+  "start_url": "/Muratt/"
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0d0f14",
